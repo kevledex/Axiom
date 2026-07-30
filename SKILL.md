@@ -98,6 +98,7 @@ Reglas de arquitectura:
 - Los `ModuleScript` de configuración y componentes viven dentro del `ScreenGui`, no en `ReplicatedStorage`, para que la UI sea un paquete que se puede copiar entre juegos.
 - Los controladores son `Script` con `RunContext = Client` o `LocalScript`. Nada de lógica de UI en el servidor.
 - Define los **breakpoints** aquí: qué desaparece, qué se reorganiza y qué crece en pantallas estrechas.
+- **Decide aquí la estrategia de la lista.** Si la UI muestra elementos dinámicos, calcula cuántos puede haber como máximo: hasta ~40 basta un lote fijo reutilizable (pooling); por encima hace falta virtualizar y renderizar solo lo visible. Elegirlo después, con la UI ya escrita, obliga a rehacer el controlador. Lee `references/performance.md`.
 
 ## Fase 3 — Código Luau
 
@@ -112,6 +113,7 @@ Convenciones de código:
 - Código simple y legible por encima de código listo: sin metatablas rebuscadas, sin abstracciones de tres niveles. Si un `for` claro resuelve, no metas una fábrica genérica.
 - Cero valores mágicos repetidos. Cada color, espaciado, radio y duración sale de `Theme`.
 - Cada componente devuelve una función `.new(config)` que crea y devuelve la instancia, con `Variant`, `OnClick` y estados incluidos.
+- Los eventos se conectan una sola vez por instancia, nunca dentro de la función que refresca la lista. Reconectar en cada render duplica conexiones y dispara el mismo clic varias veces.
 
 ## Fase 4 — Instalador para la Command Bar
 
@@ -154,6 +156,9 @@ No entregues una UI que falle cualquiera de estos puntos:
 - [ ] Las animaciones duran entre 0.12 s y 0.30 s y comunican algo.
 - [ ] El instalador avisa si la UI ya existe, y no borra nada.
 - [ ] No hay ningún bloque de código copiado 20 veces que debería ser un componente.
+- [ ] Ninguna lista destruye y recrea instancias al filtrar o refrescar. Se reutiliza un lote fijo.
+- [ ] Ningún evento se conecta dentro de una función de refresco.
+- [ ] Ningún bucle `while` refrescando la UI donde bastaría un evento.
 
 ## Referencias
 
@@ -167,6 +172,7 @@ Lee el archivo que corresponda a la fase en la que estás; no cargues todo de go
 | `references/animations.md` | Fase 3. TweenService, duraciones, easing, patrones de apertura/selección/feedback. |
 | `references/states.md` | Fase 3. Los nueve estados de interfaz y cómo implementarlos. |
 | `references/command-bar-installer.md` | Fase 4. Cómo generar un instalador que funcione de verdad. |
+| `references/performance.md` | Fase 2 y 3. Pooling, virtualización, presupuesto de instancias, fugas de conexiones. |
 | `references/emoji-safety.md` | Fase 0 y Fase 3. Qué glifos renderizan de verdad, qué nunca va en emoji. |
 | `references/accessibility.md` | Fase 3 y checklist. Contraste, tamaños táctiles, legibilidad, soporte de gamepad. |
 | `references/audit-mode.md` | Solo para auditar una UI existente. |

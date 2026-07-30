@@ -19,7 +19,7 @@ No es una guía de estilo. Es un flujo de trabajo: Claude pregunta lo necesario,
 ### Opción 1 — script (recomendada)
 
 ```bash
-git clone https://github.com/kevledex/axiom.git
+git clone https://github.com/kevledex/Axiom.git
 cd axiom
 ./scripts/install.sh
 ```
@@ -27,7 +27,7 @@ cd axiom
 O en una línea, sin clonar a mano:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/kevledex/axiom/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/kevledex/Axiom/main/scripts/install.sh | bash
 ```
 
 ### Opción 2 — clonar directamente en la carpeta de skills
@@ -35,13 +35,13 @@ curl -fsSL https://raw.githubusercontent.com/kevledex/axiom/main/scripts/install
 Para tu usuario, disponible en todos los proyectos:
 
 ```bash
-git clone https://github.com/kevledex/axiom.git ~/.claude/skills/axiom
+git clone https://github.com/kevledex/Axiom.git ~/.claude/skills/axiom
 ```
 
 Solo para un proyecto:
 
 ```bash
-git clone https://github.com/kevledex/axiom.git .claude/skills/axiom
+git clone https://github.com/kevledex/Axiom.git .claude/skills/axiom
 ```
 
 Claude Code busca las skills en `~/.claude/skills/` (personales) y `.claude/skills/` (del proyecto). La ruta final tiene que ser `.../skills/axiom/SKILL.md`, sin una carpeta extra en medio. Abre una sesión nueva para que la detecte.
@@ -94,6 +94,7 @@ axiom/
 │   ├── animations.md         TweenService, duraciones, easing, patrones
 │   ├── states.md             Los nueve estados de interfaz
 │   ├── command-bar-installer.md  Cómo generar un instalador que funcione
+│   ├── performance.md        Pooling, virtualización, presupuesto de instancias
 │   ├── emoji-safety.md       Qué glifos renderizan de verdad en Roblox
 │   ├── accessibility.md      Contraste, tamaños táctiles, gamepad
 │   └── audit-mode.md         Formato del informe de auditoría

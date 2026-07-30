@@ -217,6 +217,17 @@ end
 return Theme
 ]==], configuracion)
 
+crearModulo("Data", [==[
+-- Datos de ejemplo. Sustituye esta tabla por los datos reales de tu juego,
+-- o rellenala desde el servidor con un RemoteFunction al abrir la interfaz.
+return {
+    { Nombre = "Urbano 240", Detalle = "36 asientos - 80 km/h", Tipo = "Urbano" },
+    { Nombre = "Interprovincial X", Detalle = "48 asientos - 110 km/h", Tipo = "Interprovincial" },
+    { Nombre = "Escolar Mini", Detalle = "22 asientos - 70 km/h", Tipo = "Escolar" },
+    { Nombre = "Doble Piso", Detalle = "72 asientos - 95 km/h", Tipo = "Interprovincial" },
+}
+]==], configuracion)
+
 crearModulo("Glyphs", [==[
 -- Solo simbolos de Nivel A: heredan TextColor3 y no dependen de que el sistema
 -- del jugador aporte una fuente de emoji en color. Ver references/emoji-safety.md
@@ -432,15 +443,14 @@ local rejilla = crear("UIGridLayout", {
     SortOrder = Enum.SortOrder.LayoutOrder,
 }, tarjetas)
 
--- Datos de ejemplo: sustituir por los del juego
-local EJEMPLOS = {
-    { Nombre = "Urbano 240", Detalle = "36 asientos · 80 km/h" },
-    { Nombre = "Interprovincial X", Detalle = "48 asientos · 110 km/h" },
-    { Nombre = "Escolar Mini", Detalle = "22 asientos · 70 km/h" },
-    { Nombre = "Doble Piso", Detalle = "72 asientos · 95 km/h" },
-}
+-- Lote fijo de tarjetas reutilizables (pooling).
+-- El instalador crea las instancias una sola vez y el controlador las rellena
+-- con datos y las muestra u oculta. Nunca se destruyen ni se recrean al filtrar:
+-- Instance.new por cada item en cada refresco es la causa numero uno de tirones
+-- en moviles de gama baja. Ver references/performance.md
+local MAX_TARJETAS = 12
 
-for indice, datos in ipairs(EJEMPLOS) do
+for indice = 1, MAX_TARJETAS do
     local tarjeta = crear("TextButton", {
         Name = "Card_" .. indice,
         Text = "",
@@ -448,6 +458,7 @@ for indice, datos in ipairs(EJEMPLOS) do
         BackgroundColor3 = C.Surface,
         BorderSizePixel = 0,
         LayoutOrder = indice,
+        Visible = false,
     }, tarjetas)
     esquinas(tarjeta, R.M)
     borde(tarjeta, C.Border, 1, 0.6)
@@ -460,7 +471,7 @@ for indice, datos in ipairs(EJEMPLOS) do
     crear("TextLabel", {
         Name = "Nombre",
         BackgroundTransparency = 1,
-        Text = datos.Nombre,
+        Text = "",
         TextColor3 = C.TextPrimary,
         FontFace = Font.new(FUENTE, Enum.FontWeight.SemiBold),
         TextSize = 16,
@@ -473,7 +484,7 @@ for indice, datos in ipairs(EJEMPLOS) do
     crear("TextLabel", {
         Name = "Detalle",
         BackgroundTransparency = 1,
-        Text = datos.Detalle,
+        Text = "",
         TextColor3 = C.TextSecondary,
         FontFace = Font.new(FUENTE, Enum.FontWeight.Regular),
         TextSize = 12,
@@ -569,6 +580,7 @@ local TweenService = game:GetService("TweenService")
 
 local pantalla = script.Parent.Parent
 local Theme = require(pantalla.Configuration.Theme)
+local Data = require(pantalla.Configuration.Data)
 
 local main = pantalla:WaitForChild("Main")
 local header = main:WaitForChild("Header")
@@ -589,7 +601,21 @@ local function animar(objeto, duracion, propiedades)
     return tween
 end
 
--- Estados de una tarjeta: normal y seleccionada
+-- Lote de tarjetas ya creadas por el instalador. Se reutilizan siempre:
+-- rellenar texto y alternar Visible es mucho mas barato que crear y destruir
+-- instancias en cada busqueda o cada cambio de filtro.
+local lote = {}
+for _, hijo in ipairs(tarjetas:GetChildren()) do
+    if hijo:IsA("TextButton") then
+        table.insert(lote, hijo)
+    end
+end
+table.sort(lote, function(a, b)
+    return a.LayoutOrder < b.LayoutOrder
+end)
+
+local visibles = {}
+
 local function pintarTarjeta(tarjeta, activa)
     local trazo = tarjeta:FindFirstChildOfClass("UIStroke")
     animar(tarjeta, Theme.Animation.Fast, {
@@ -617,58 +643,85 @@ local function seleccionar(tarjeta)
     detalles.Descripcion.Text = tarjeta.Detalle.Text
 end
 
--- Feedback en cada tarjeta. En táctil no hay hover, así que el peso
--- del feedback lo lleva el estado presionado.
-for _, tarjeta in ipairs(tarjetas:GetChildren()) do
-    if tarjeta:IsA("TextButton") then
-        local escala = tarjeta:FindFirstChildOfClass("UIScale")
+-- Los eventos se conectan UNA sola vez por tarjeta, no en cada refresco.
+-- Reconectar en cada render duplica conexiones y filtra memoria.
+for _, tarjeta in ipairs(lote) do
+    local escala = tarjeta:FindFirstChildOfClass("UIScale")
 
-        tarjeta.MouseEnter:Connect(function()
-            if seleccionada ~= tarjeta and escala then
-                animar(escala, Theme.Animation.Fast, { Scale = 1.02 })
-            end
-        end)
+    tarjeta.MouseEnter:Connect(function()
+        if seleccionada ~= tarjeta and escala then
+            animar(escala, Theme.Animation.Fast, { Scale = 1.02 })
+        end
+    end)
 
-        tarjeta.MouseLeave:Connect(function()
-            if escala then
-                animar(escala, Theme.Animation.Fast, { Scale = 1 })
-            end
-        end)
+    tarjeta.MouseLeave:Connect(function()
+        if escala then
+            animar(escala, Theme.Animation.Fast, { Scale = 1 })
+        end
+    end)
 
-        tarjeta.MouseButton1Down:Connect(function()
-            if escala then
-                animar(escala, 0.08, { Scale = 0.97 })
-            end
-        end)
+    tarjeta.MouseButton1Down:Connect(function()
+        if escala then
+            animar(escala, 0.08, { Scale = 0.97 })
+        end
+    end)
 
-        tarjeta.MouseButton1Click:Connect(function()
-            if escala then
-                animar(escala, Theme.Animation.Fast, { Scale = 1 })
-            end
-            seleccionar(tarjeta)
-        end)
-    end
+    tarjeta.MouseButton1Click:Connect(function()
+        if escala then
+            animar(escala, Theme.Animation.Fast, { Scale = 1 })
+        end
+        seleccionar(tarjeta)
+    end)
 end
 
--- Búsqueda con estado vacío
-entrada:GetPropertyChangedSignal("Text"):Connect(function()
-    local consulta = string.lower(entrada.Text)
-    local visibles = 0
+-- Rellena el lote con los datos que toque mostrar. Si hay mas datos que
+-- tarjetas, avisa en lugar de crear instancias nuevas en silencio: el limite
+-- es deliberado y se sube cambiando MAX_TARJETAS en el instalador, o se
+-- resuelve con paginacion.
+local function renderizar(datos)
+    visibles = {}
 
-    for _, tarjeta in ipairs(tarjetas:GetChildren()) do
-        if tarjeta:IsA("TextButton") then
-            local coincide = consulta == "" or string.find(string.lower(tarjeta.Nombre.Text), consulta, 1, true) ~= nil
-            tarjeta.Visible = coincide
-            if coincide then
-                visibles = visibles + 1
-            end
+    for indice, tarjeta in ipairs(lote) do
+        local fila = datos[indice]
+        if fila then
+            tarjeta.Nombre.Text = fila.Nombre
+            tarjeta.Detalle.Text = fila.Detalle
+            tarjeta.Visible = true
+            table.insert(visibles, tarjeta)
+        else
+            tarjeta.Visible = false
         end
     end
 
-    vacio.Visible = visibles == 0
-    if visibles == 0 then
+    if #datos > #lote then
+        warn("Hay " .. #datos .. " elementos y solo " .. #lote .. " tarjetas. Sube MAX_TARJETAS o pagina la lista.")
+    end
+
+    vacio.Visible = #visibles == 0
+end
+
+local function filtrar(consulta)
+    consulta = string.lower(consulta or "")
+    if consulta == "" then
+        renderizar(Data)
+        return
+    end
+
+    local resultado = {}
+    for _, fila in ipairs(Data) do
+        if string.find(string.lower(fila.Nombre), consulta, 1, true) then
+            table.insert(resultado, fila)
+        end
+    end
+
+    renderizar(resultado)
+    if #resultado == 0 then
         vacio.Mensaje.Text = "No hay autobuses que coincidan con '" .. entrada.Text .. "'"
     end
+end
+
+entrada:GetPropertyChangedSignal("Text"):Connect(function()
+    filtrar(entrada.Text)
 end)
 
 -- Cierre
@@ -732,10 +785,11 @@ end
 pantalla:GetPropertyChangedSignal("AbsoluteSize"):Connect(aplicarModo)
 aplicarModo()
 
--- Selección inicial
-local primera = tarjetas:FindFirstChild("Card_1")
-if primera then
-    seleccionar(primera)
+-- Render inicial y seleccion de la primera tarjeta visible
+renderizar(Data)
+
+if visibles[1] then
+    seleccionar(visibles[1])
 end
 ]==], controladores)
 

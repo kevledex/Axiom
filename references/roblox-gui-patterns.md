@@ -168,6 +168,8 @@ El indicador que se desliza es uno de los detalles que más "sube" la percepció
 
 ## 8. Reglas de rendimiento
 
+Resumen; el detalle (pooling, virtualización, presupuesto de instancias) está en `performance.md`.
+
 - Asigna `Parent` **al final**, después de las propiedades. Cada cambio con el objeto ya en el árbol dispara un recálculo de layout.
 - No uses el segundo argumento de `Instance.new("Frame", padre)`: hace exactamente lo contrario a lo anterior.
 - Reutiliza instancias en listas largas en vez de destruir y crear en cada refresco.
