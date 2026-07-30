@@ -38,7 +38,7 @@ Si el juego se puede jugar con mando o el usuario lo pide:
 ## Movimiento y sonido
 
 - Nada de parpadeos rápidos ni destellos de pantalla completa: pueden provocar molestias reales.
-- Si añades sonidos de UI, volumen bajo (0.2–0.4) y clips muy cortos. Un clic fuerte en cada toque es agotador.
+- Si añades sonidos de UI, volumen bajo y clips muy cortos, con un interruptor para silenciarlos en los ajustes. Ver `sound-design.md`.
 - Ninguna información crítica solo por sonido: mucha gente juega en silencio.
 
 ## Claridad del lenguaje

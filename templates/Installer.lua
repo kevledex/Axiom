@@ -217,6 +217,98 @@ end
 return Theme
 ]==], configuracion)
 
+crearModulo("Sounds", [==[
+-- Cambia los 0 por tus IDs de audio. Mientras sean 0, la UI funciona en
+-- silencio sin errores. Ver references/sound-design.md
+local SoundService = game:GetService("SoundService")
+
+local Sounds = {}
+
+Sounds.Ids = {
+    Hover = "rbxassetid://0",
+    Click = "rbxassetid://0",
+    Open = "rbxassetid://0",
+    Close = "rbxassetid://0",
+    Success = "rbxassetid://0",
+    Error = "rbxassetid://0",
+    Locked = "rbxassetid://0",
+}
+
+local VOLUMENES = {
+    Hover = 0.10,
+    Click = 0.22,
+    Open = 0.25,
+    Close = 0.20,
+    Success = 0.30,
+    Error = 0.30,
+    Locked = 0.18,
+}
+
+-- Evita la metralleta de sonidos al recorrer una lista con el raton.
+local INTERVALO_MINIMO = 0.06
+
+local grupo = SoundService:FindFirstChild("AxiomUI")
+if not grupo then
+    grupo = Instance.new("SoundGroup")
+    grupo.Name = "AxiomUI"
+    grupo.Volume = 1
+    grupo.Parent = SoundService
+end
+
+local instancias = {}
+local ultimoUso = {}
+
+local function esPlaceholder(id)
+    return id == nil or id == "" or id == "rbxassetid://0"
+end
+
+local function obtener(nombre)
+    if instancias[nombre] then
+        return instancias[nombre]
+    end
+
+    local id = Sounds.Ids[nombre]
+    if esPlaceholder(id) then
+        return nil
+    end
+
+    local sonido = Instance.new("Sound")
+    sonido.Name = nombre
+    sonido.SoundId = id
+    sonido.Volume = VOLUMENES[nombre] or 0.2
+    sonido.SoundGroup = grupo
+    sonido.Parent = grupo
+
+    instancias[nombre] = sonido
+    return sonido
+end
+
+function Sounds.reproducir(nombre)
+    local sonido = obtener(nombre)
+    if not sonido then
+        return
+    end
+
+    local ahora = os.clock()
+    if ahora - (ultimoUso[nombre] or 0) < INTERVALO_MINIMO then
+        return
+    end
+    ultimoUso[nombre] = ahora
+
+    SoundService:PlayLocalSound(sonido)
+end
+
+function Sounds.setSilencio(silenciado)
+    grupo.Volume = silenciado and 0 or 1
+end
+
+function Sounds.estaSilenciado()
+    return grupo.Volume == 0
+end
+
+return Sounds
+]==], configuracion)
+
 crearModulo("Data", [==[
 -- Datos de ejemplo. Sustituye esta tabla por los datos reales de tu juego,
 -- o rellenala desde el servidor con un RemoteFunction al abrir la interfaz.
@@ -581,6 +673,7 @@ local TweenService = game:GetService("TweenService")
 local pantalla = script.Parent.Parent
 local Theme = require(pantalla.Configuration.Theme)
 local Data = require(pantalla.Configuration.Data)
+local Sounds = require(pantalla.Configuration.Sounds)
 
 local main = pantalla:WaitForChild("Main")
 local header = main:WaitForChild("Header")
@@ -651,6 +744,7 @@ for _, tarjeta in ipairs(lote) do
     tarjeta.MouseEnter:Connect(function()
         if seleccionada ~= tarjeta and escala then
             animar(escala, Theme.Animation.Fast, { Scale = 1.02 })
+            Sounds.reproducir("Hover")
         end
     end)
 
@@ -670,6 +764,7 @@ for _, tarjeta in ipairs(lote) do
         if escala then
             animar(escala, Theme.Animation.Fast, { Scale = 1 })
         end
+        Sounds.reproducir("Click")
         seleccionar(tarjeta)
     end)
 end
@@ -726,6 +821,7 @@ end)
 
 -- Cierre
 header.CloseButton.MouseButton1Click:Connect(function()
+    Sounds.reproducir("Close")
     -- No se anima escalaGlobal aquí: la usa el sistema responsive.
     animar(main, Theme.Animation.Fast, { BackgroundTransparency = 1 })
     task.delay(Theme.Animation.Fast, function()
@@ -784,6 +880,46 @@ end
 
 pantalla:GetPropertyChangedSignal("AbsoluteSize"):Connect(aplicarModo)
 aplicarModo()
+
+-- Boton de confirmar del panel de detalle
+local confirmar = detalles:WaitForChild("ConfirmButton")
+local escalaConfirmar = confirmar:FindFirstChildOfClass("UIScale")
+
+confirmar.MouseEnter:Connect(function()
+    animar(confirmar, Theme.Animation.Fast, { BackgroundColor3 = Theme.Colors.PrimaryHover })
+    if escalaConfirmar then
+        animar(escalaConfirmar, Theme.Animation.Fast, { Scale = 1.02 })
+    end
+    Sounds.reproducir("Hover")
+end)
+
+confirmar.MouseLeave:Connect(function()
+    animar(confirmar, Theme.Animation.Fast, { BackgroundColor3 = Theme.Colors.Primary })
+    if escalaConfirmar then
+        animar(escalaConfirmar, Theme.Animation.Fast, { Scale = 1 })
+    end
+end)
+
+confirmar.MouseButton1Down:Connect(function()
+    animar(confirmar, 0.08, { BackgroundColor3 = Theme.Colors.PrimaryPressed })
+    if escalaConfirmar then
+        animar(escalaConfirmar, 0.08, { Scale = 0.98 })
+    end
+end)
+
+confirmar.MouseButton1Click:Connect(function()
+    animar(confirmar, Theme.Animation.Fast, { BackgroundColor3 = Theme.Colors.Primary })
+    if escalaConfirmar then
+        animar(escalaConfirmar, Theme.Animation.Fast, { Scale = 1 })
+    end
+    Sounds.reproducir("Success")
+    -- Aqui va la llamada al servidor que aplica la seleccion.
+end)
+
+-- Sonido de apertura, solo si la UI arranca visible
+if pantalla.Enabled then
+    Sounds.reproducir("Open")
+end
 
 -- Render inicial y seleccion de la primera tarjeta visible
 renderizar(Data)

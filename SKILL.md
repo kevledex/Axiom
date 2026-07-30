@@ -149,7 +149,7 @@ Reglas de arquitectura:
 
 ## Fase 3 — Código Luau
 
-Genera, en este orden: `Theme` → `Icons` → componentes → controladores. Usa los archivos de `templates/` como punto de partida y adáptalos a la dirección visual de la Fase 1 (no copies la paleta del template tal cual).
+Genera, en este orden: `Theme` → `Icons` → `Sounds` (si la UI tiene interacción frecuente) → componentes → controladores. Usa los archivos de `templates/` como punto de partida y adáptalos a la dirección visual de la Fase 1 (no copies la paleta del template tal cual).
 
 Convenciones de código:
 
@@ -203,6 +203,8 @@ No entregues una UI que falle cualquiera de estos puntos:
 - [ ] Ningún emoji de color en un elemento crítico (precio, moneda, cerrar, confirmar, bloqueado).
 - [ ] Ningún alto o ancho calculado a mano para "el espacio que sobra". Se reparte con `UIFlexItem` o se mide; nunca `1, -160`.
 - [ ] Las animaciones duran entre 0.12 s y 0.30 s y comunican algo.
+- [ ] Si hay sonidos: volumen bajo, con throttle para que una lista no suene a metralleta, y se pueden silenciar.
+- [ ] Ningún ID de audio inventado; los pendientes son `rbxassetid://0` y la UI funciona en silencio sin errores.
 - [ ] El instalador avisa si la UI ya existe, y no borra nada.
 - [ ] No hay ningún bloque de código copiado 20 veces que debería ser un componente.
 - [ ] Ninguna lista destruye y recrea instancias al filtrar o refrescar. Se reutiliza un lote fijo.
@@ -220,11 +222,12 @@ Lee el archivo que corresponda a la fase en la que estás; no cargues todo de go
 | `references/responsive-ui.md` | Fase 2 y 3. Breakpoints, Scale vs Offset, rediseño móvil, detección de tamaño. |
 | `references/animations.md` | Fase 3. TweenService, duraciones, easing, patrones de apertura/selección/feedback. |
 | `references/states.md` | Fase 3. Los nueve estados de interfaz y cómo implementarlos. |
+| `references/sound-design.md` | Fase 3. Los siete sonidos de UI, volúmenes, throttle, qué no debe sonar. |
 | `references/command-bar-installer.md` | Fase 4. Cómo generar un instalador que funcione de verdad. |
 | `references/performance.md` | Fase 2 y 3. Pooling, virtualización, presupuesto de instancias, fugas de conexiones. |
 | `references/emoji-safety.md` | Fase 0 y Fase 3. Qué glifos renderizan de verdad, qué nunca va en emoji. |
 | `references/accessibility.md` | Fase 3 y checklist. Contraste, tamaños táctiles, legibilidad, soporte de gamepad. |
 | `references/audit-mode.md` | Auditar una UI existente, o cuando se invoca `/axiom audit`. |
 
-Plantillas listas para adaptar en `templates/`: `Theme.lua`, `Icons.lua`, `Component.lua`, `Installer.lua`.
+Plantillas listas para adaptar en `templates/`: `Theme.lua`, `Icons.lua`, `Sounds.lua`, `Component.lua`, `Installer.lua`.
 Ejemplos completos de flujo en `examples/`: `BusSelector.md`, `Shop.md`, `Inventory.md`, `Settings.md`.

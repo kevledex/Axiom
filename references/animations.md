@@ -141,7 +141,7 @@ Cada acción del jugador necesita una respuesta perceptible en menos de 150 ms. 
 1. Cambio de color o de transparencia.
 2. Escala (`UIScale`).
 3. Desplazamiento pequeño (2–4 px).
-4. Sonido corto (`SoundService`, volumen bajo).
+4. Sonido corto y de volumen bajo. El detalle está en `sound-design.md`; lo esencial es que va acompañando al cambio visual, nunca solo.
 5. Aparición de un elemento (check, badge, toast).
 
 En móvil no hay hover, así que el estado **presionado** carga con todo el peso del feedback. Usa `InputBegan` / `InputEnded` en el botón para cubrir ratón y toque con el mismo código:
