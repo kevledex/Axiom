@@ -16,46 +16,30 @@ No es una guía de estilo. Es un flujo de trabajo: Claude pregunta lo necesario,
 
 ## Instalación
 
-### Opción 1 — script (recomendada)
+Necesitas [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) y `git`.
 
-```bash
-git clone https://github.com/kevledex/Axiom.git
-cd axiom
-./scripts/install.sh
+**Windows** (PowerShell):
+
+```powershell
+git clone https://github.com/kevledex/Axiom.git "$env:USERPROFILE\.claude\skills\axiom"
 ```
 
-O en una línea, sin clonar a mano:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/kevledex/Axiom/main/scripts/install.sh | bash
-```
-
-### Opción 2 — clonar directamente en la carpeta de skills
-
-Para tu usuario, disponible en todos los proyectos:
+**macOS y Linux**:
 
 ```bash
 git clone https://github.com/kevledex/Axiom.git ~/.claude/skills/axiom
 ```
 
-Solo para un proyecto:
+Después abre una **sesión nueva** de Claude Code: las skills se cargan al arrancar.
 
-```bash
-git clone https://github.com/kevledex/Axiom.git .claude/skills/axiom
-```
+Para instalarla solo en un proyecto, usa `.claude/skills/axiom` en lugar de la ruta del usuario. La ruta final debe ser `.../skills/axiom/SKILL.md`, sin carpeta intermedia.
 
-Claude Code busca las skills en `~/.claude/skills/` (personales) y `.claude/skills/` (del proyecto). La ruta final tiene que ser `.../skills/axiom/SKILL.md`, sin una carpeta extra en medio. Abre una sesión nueva para que la detecte.
+Instrucciones detalladas por sistema operativo, scripts de instalación, verificación y resolución de problemas: **[INSTALL.md](INSTALL.md)**.
 
 ### Actualizar
 
 ```bash
-cd ~/.claude/skills/axiom && git pull
-```
-
-### Desinstalar
-
-```bash
-rm -rf ~/.claude/skills/axiom
+git -C ~/.claude/skills/axiom pull
 ```
 
 ## Cómo se usa
@@ -106,8 +90,11 @@ Si la UI ya existe, el instalador avisa y no toca nada.
 
 ```
 axiom/
-├── SKILL.md                  Flujo principal: las 6 fases y el checklist
+├── SKILL.md                  Flujo principal: las fases y el checklist
 ├── README.md
+├── INSTALL.md                Instalación en Windows, macOS y Linux
+├── CHANGELOG.md              Historial de versiones
+├── CONTRIBUTING.md           Cómo aportar y estilo del proyecto
 ├── references/
 │   ├── premium-design.md     Dirección visual, paletas, tipografía, antipatrones
 │   ├── genre-patterns.md     Patrones por género y números grandes
@@ -135,21 +122,25 @@ axiom/
 │   ├── Inventory.md          Rejilla, rareza, rendimiento en móvil
 │   └── Settings.md           Toggles, sliders, dropdowns, persistencia
 └── scripts/
-    └── install.sh
+    ├── install.sh            Instalador para macOS y Linux
+    └── install.ps1           Instalador para Windows
 ```
 
 Las plantillas `.lua` tienen la sintaxis validada. `Installer.lua` es un instalador real y funcional: puedes pegarlo en la Command Bar tal cual para ver el resultado antes de pedir el tuyo.
 
 ## Requisitos
 
-- Claude Code.
-- Roblox Studio (la Command Bar solo existe en Studio; el instalador necesita modo edición para escribir el código de los módulos).
-- `git` para instalar.
+- **Claude Code** y `git`.
+- **Roblox Studio** para instalar lo que genera. La Command Bar solo existe en Studio, y el instalador necesita el modo edición para escribir el código de los módulos. Studio está disponible en Windows y macOS; en Linux puedes usar la skill para generar el código, pero necesitarás Studio en otra máquina para aplicarlo.
 
 ## Notas
 
 Los nombres de instancias, módulos y propiedades van en inglés PascalCase porque es el estándar de Roblox y encaja con cualquier tutorial o plugin. Las variables locales y los comentarios van en español.
 
+## Contribuir
+
+Los fallos encontrados usándola en un proyecto real son lo más útil que se puede aportar. Ver [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Licencia
 
-MIT. Ver `LICENSE`.
+MIT. Ver [LICENSE](LICENSE).
