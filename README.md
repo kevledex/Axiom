@@ -110,6 +110,7 @@ axiom/
 ├── README.md
 ├── references/
 │   ├── premium-design.md     Dirección visual, paletas, tipografía, antipatrones
+│   ├── genre-patterns.md     Patrones por género y números grandes
 │   ├── roblox-gui-patterns.md Equivalencias CSS, layouts, constraints, errores
 │   ├── responsive-ui.md      Scale vs Offset, breakpoints, rediseño móvil
 │   ├── animations.md         TweenService, duraciones, easing, patrones

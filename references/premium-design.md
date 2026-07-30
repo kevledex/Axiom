@@ -141,6 +141,8 @@ Evita esto siempre:
 
 ## 8. Cuatro direcciones visuales de ejemplo
 
+Para patrones ligados a un género concreto (simulador, tycoon, roleplay, obby, tower defense, combate, horror, conducción), ver `genre-patterns.md`.
+
 Sirven de punto de partida; adáptalas al juego, no las copies literalmente.
 
 **Industrial / transporte / simulador**

@@ -111,6 +111,8 @@ No preguntes lo que ya puedes deducir. Si el usuario dice "una tienda de skins c
 
 ## Fase 1 — Dirección visual (antes de cualquier código)
 
+Si sabes de qué género es el juego, lee primero la sección correspondiente de `references/genre-patterns.md`: cada género tiene patrones consolidados porque resuelven un problema concreto de ese género, y conviene saber cuál es antes de romperlos.
+
 Escribe explícitamente, en 5–10 líneas, antes de programar:
 
 - **Concepto**: qué debe sentir el jugador (industrial y funcional / arcade y luminoso / lujoso y sobrio / militar / caricaturesco). Sale del objetivo que dio en la Ronda 1, no de tu gusto: una UI para "decidir rápido" y otra para "presumir progreso" no se parecen aunque sean del mismo juego.
@@ -194,6 +196,7 @@ No entregues una UI que falle cualquiera de estos puntos:
 - [ ] No hay búsqueda ni filtros en una lista que no los necesita.
 - [ ] Hay jerarquía: se distingue de un vistazo qué es título, qué es acción principal y qué es secundario.
 - [ ] Un solo color de acento y no está usado en todo.
+- [ ] La UI cumple la función que pide el género, pero con identidad propia: no es la estética de otro juego reproducida.
 - [ ] Todos los espaciados, colores, radios y duraciones vienen de `Theme`.
 - [ ] Cada elemento interactivo tiene, como mínimo, estados normal, hover, presionado y deshabilitado.
 - [ ] Existen los estados de vacío, cargando y error donde aplique. Una lista sin datos no debe verse como un bug.
@@ -220,6 +223,7 @@ Lee el archivo que corresponda a la fase en la que estás; no cargues todo de go
 | Archivo | Cuándo leerlo |
 |---|---|
 | `references/premium-design.md` | Fase 1. Dirección visual, paletas, tipografía, jerarquía, antipatrones. |
+| `references/genre-patterns.md` | Fase 1. Patrones por género, formato de números grandes, cómo tomar prestado sin copiar. |
 | `references/roblox-gui-patterns.md` | Fase 2 y 3. Equivalencias con CSS moderno, layouts, constraints, propiedades correctas, errores comunes de Luau/GUI. |
 | `references/responsive-ui.md` | Fase 2 y 3. Breakpoints, Scale vs Offset, rediseño móvil, detección de tamaño. |
 | `references/animations.md` | Fase 3. TweenService, duraciones, easing, patrones de apertura/selección/feedback. |
