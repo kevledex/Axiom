@@ -1,6 +1,6 @@
 ---
 name: axiom
-description: Diseña e implementa sistemas completos de interfaz (GUI) de calidad AAA para Roblox Studio en Luau — dirección visual, Theme central, componentes reutilizables, estados, animaciones con TweenService, diseño responsive PC/móvil e instalador automático para la Command Bar. Úsala SIEMPRE que aparezca cualquier trabajo de interfaz en Roblox, incluso si el usuario no dice "diseño": "crea un menú / tienda / inventario / HUD / selector / lobby para mi juego", "hazme una GUI", "mejora esta interfaz", "esta UI se ve genérica o fea", "hazla responsive para móvil", "analiza o audita mi interfaz", o si se mencionan ScreenGui, StarterGui, Frame, TextButton, ImageButton, UIListLayout, UIGridLayout, UICorner, UIScale o TweenService. Actívala también cuando el pedido parezca pequeño ("solo un botón", "un panel de confirmación"): la skill garantiza jerarquía visual, sistema de diseño, estados e instalador en lugar de código suelto y genérico.
+description: Diseña e implementa sistemas completos de interfaz (GUI) de calidad AAA para Roblox Studio en Luau — dirección visual, Theme central, componentes reutilizables, estados, animaciones con TweenService, diseño responsive PC/móvil e instalador automático para la Command Bar. Úsala SIEMPRE que aparezca cualquier trabajo de interfaz en Roblox, incluso si el usuario no dice "diseño": "crea un menú / tienda / inventario / HUD / selector / lobby para mi juego", "un velocímetro / barra de vida / minimapa / marcador / rueda de emotes / números de daño", "hazme una GUI", "mejora esta interfaz", "esta UI se ve genérica o fea", "hazla responsive para móvil", "analiza o audita mi interfaz", o si se mencionan ScreenGui, StarterGui, Frame, TextButton, ImageButton, UIListLayout, UIGridLayout, UICorner, UIScale o TweenService. Actívala también cuando el pedido parezca pequeño ("solo un botón", "un panel de confirmación"): la skill garantiza jerarquía visual, sistema de diseño, estados e instalador en lugar de código suelto y genérico.
 ---
 
 # Axiom
@@ -234,4 +234,18 @@ Lee el archivo que corresponda a la fase en la que estás; no cargues todo de go
 | `references/audit-mode.md` | Auditar una UI existente, o cuando se invoca `/axiom audit`. |
 
 Plantillas listas para adaptar en `templates/`: `Theme.lua`, `Icons.lua`, `Sounds.lua`, `Component.lua`, `Installer.lua`.
-Ejemplos completos de flujo en `examples/`: `BusSelector.md`, `Shop.md`, `Inventory.md`, `Settings.md`.
+Ejemplos en `examples/`. **No todo pedido es un menú**: si el usuario pide un velocímetro, una barra de vida, un minimapa o números de daño, el ejemplo correspondiente ya tiene resueltas las reglas de HUD, el patrón de refresco y la estrategia de reutilización de instancias.
+
+| Ejemplo | Tipo | Qué resuelve |
+|---|---|---|
+| `BusSelector.md` | panel | flujo completo de la skill, de la pregunta a la entrega |
+| `Shop.md` | panel | saldo, confirmación de compra, estados de precio |
+| `Inventory.md` | panel | rejilla, rareza, rendimiento con muchas ranuras |
+| `Settings.md` | panel | toggles, sliders, dropdowns, persistencia |
+| `Leaderboard.md` | panel o HUD | virtualización, formato de números, fila propia anclada |
+| `RadialMenu.md` | panel rápido | colocación circular, selección por ángulo, mando y táctil |
+| `Speedometer.md` | HUD | arco sin primitiva de arco, ancho fijo, refresco limitado |
+| `HealthBar.md` | HUD | barra fantasma de daño, umbrales de color, estado crítico |
+| `Minimap.md` | HUD | conversión mundo a UI, marcadores al borde, coste del enfoque |
+| `Notifications.md` | HUD | cola con lote fijo, agrupación de repeticiones, duraciones |
+| `DamageNumbers.md` | mundo 3D | `BillboardGui`, lote rotatorio obligatorio, dispersión |
