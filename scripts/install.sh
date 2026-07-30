@@ -6,12 +6,12 @@
 #   ./scripts/install.sh --project    # instala solo en el proyecto actual (./.claude/skills)
 #
 # También funciona directamente desde GitHub:
-#   curl -fsSL https://raw.githubusercontent.com/TU-USUARIO/axiom/main/scripts/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/kevledex/Axiom/main/scripts/install.sh | bash
 
 set -euo pipefail
 
 NOMBRE_SKILL="axiom"
-REPO="https://github.com/TU-USUARIO/axiom.git"
+REPO="https://github.com/kevledex/Axiom.git"
 RAMA="main"
 
 ALCANCE="usuario"
