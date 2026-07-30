@@ -117,6 +117,8 @@ axiom/
 │   ├── command-bar-installer.md  Cómo generar un instalador que funcione
 │   ├── performance.md        Pooling, virtualización, presupuesto de instancias
 │   ├── sound-design.md       Los siete sonidos de UI, volúmenes, throttle
+│   ├── hud-vs-menu.md        Reglas propias de un HUD permanente
+│   ├── known-pitfalls.md     Catálogo de fallos con causa y arreglo
 │   ├── emoji-safety.md       Qué glifos renderizan de verdad en Roblox
 │   ├── accessibility.md      Contraste, tamaños táctiles, gamepad
 │   └── audit-mode.md         Formato del informe de auditoría

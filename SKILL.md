@@ -60,7 +60,7 @@ El objetivo cambia todo. "Decidir rápido" pide pocas opciones grandes y una acc
 
 **2. ¿Es un panel que se abre y se cierra, o algo permanente en pantalla?**
 - **Panel / menú** — ocupa el foco, el jugador está dentro de él. Puede ser denso y animado.
-- **HUD permanente** — convive con el juego. Las reglas cambian: menos texto, menos animación, nada que robe atención al gameplay, legibilidad a distancia y ninguna interacción que exija precisión.
+- **HUD permanente** — convive con el juego. Las reglas cambian por completo: lee `references/hud-vs-menu.md` antes de diseñarlo. Un HUD tiene que poder leerse sin ser mirado, no puede bloquear el input y compite por atención con el gameplay.
 
 ### Ronda 2 — Configuración técnica
 
@@ -207,6 +207,8 @@ No entregues una UI que falle cualquiera de estos puntos:
 - [ ] Ningún ID de audio inventado; los pendientes son `rbxassetid://0` y la UI funciona en silencio sin errores.
 - [ ] El instalador avisa si la UI ya existe, y no borra nada.
 - [ ] No hay ningún bloque de código copiado 20 veces que debería ser un componente.
+- [ ] Si es un HUD: no bloquea el input, el texto es legible sobre cualquier fondo y respeta las zonas del joystick y el salto.
+- [ ] Repasada la sección relevante de `references/known-pitfalls.md` para el tipo de UI construida.
 - [ ] Ninguna lista destruye y recrea instancias al filtrar o refrescar. Se reutiliza un lote fijo.
 - [ ] Ningún evento se conecta dentro de una función de refresco.
 - [ ] Ningún bucle `while` refrescando la UI donde bastaría un evento.
@@ -227,6 +229,8 @@ Lee el archivo que corresponda a la fase en la que estás; no cargues todo de go
 | `references/performance.md` | Fase 2 y 3. Pooling, virtualización, presupuesto de instancias, fugas de conexiones. |
 | `references/emoji-safety.md` | Fase 0 y Fase 3. Qué glifos renderizan de verdad, qué nunca va en emoji. |
 | `references/accessibility.md` | Fase 3 y checklist. Contraste, tamaños táctiles, legibilidad, soporte de gamepad. |
+| `references/hud-vs-menu.md` | Fase 0 en adelante, si la UI es permanente en pantalla. Reglas propias del HUD. |
+| `references/known-pitfalls.md` | Cuando algo se ve mal y no está claro por qué, y como repaso antes de entregar. |
 | `references/audit-mode.md` | Auditar una UI existente, o cuando se invoca `/axiom audit`. |
 
 Plantillas listas para adaptar en `templates/`: `Theme.lua`, `Icons.lua`, `Sounds.lua`, `Component.lua`, `Installer.lua`.

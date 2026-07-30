@@ -32,6 +32,8 @@ Seis dimensiones, cada una de 1 a 10. Sé honesto: un 7 de cortesía a una UI de
 
 **6. Originalidad** — ¿Se reconocería este juego por su UI? ¿O es el frame gris con botón azul de cualquier tutorial?
 
+Cruza lo que veas con `known-pitfalls.md`: la mayoría de los fallos de una UI real están en ese catálogo, con la causa y el arreglo ya escritos. Citar la causa concreta ("el alto del cuerpo está calculado a mano y no cuadra con la suma de las filas") vale mucho más que decir "el layout está mal".
+
 Además, revisa el código si lo tienes: valores mágicos, bloques duplicados que deberían ser componentes, `Position` en hijos de layouts, `CanvasSize` fijo, eventos sin desconectar, lógica de UI en el servidor.
 
 ## Formato del informe
