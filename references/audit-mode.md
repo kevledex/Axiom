@@ -1,16 +1,20 @@
 # Modo auditoría
 
-Leer solo cuando el usuario pide analizar, revisar, criticar o mejorar una UI existente en vez de crear una nueva. Frases típicas: "analiza esta interfaz", "¿por qué se ve mal?", "revisa mi UI", "dime qué mejorar", "esto se ve genérico".
+Leer cuando el usuario invoca `/axiom audit`, o cuando pide analizar, revisar, criticar o mejorar una UI existente en vez de crear una nueva. Frases típicas: "analiza esta interfaz", "¿por qué se ve mal?", "revisa mi UI", "dime qué mejorar", "esto se ve genérico".
+
+En modo auditoría **no se hacen las preguntas de configuración de la Fase 0**: no hay nada que instalar todavía. Se pide solo lo que falte para poder evaluar.
 
 ## Qué necesitas para auditar
 
 Pide lo que falte, en un solo mensaje:
 
-- Una captura de la interfaz (lo más útil de todo).
-- El código que la genera, o el árbol de instancias.
-- En qué dispositivos se juega principalmente.
+- **El código que genera la interfaz**, o el árbol de instancias con sus propiedades. Es la fuente más útil: de ahí sales sabiendo la paleta, los tamaños, los estados que existen y los que faltan.
+- **Qué debe conseguir el jugador con esa UI.** Sin el objetivo no se puede juzgar si el diseño lo sirve.
+- **En qué dispositivos se juega principalmente.**
 
-Si solo tienes una de las tres cosas, audita con eso y di explícitamente qué no pudiste evaluar. No inventes problemas que no puedes ver: si no tienes captura, no opines sobre la paleta.
+Con el código basta para auditar en profundidad. Si el usuario también describe lo que ve o lo que le chirría, mejor.
+
+Si te falta algo, audita con lo que tengas y **di explícitamente qué no pudiste evaluar**. No inventes problemas que no puedes verificar: sin ver los valores de color, no opines sobre el contraste; sin ver el layout, no afirmes que está roto en móvil. Un informe con tres problemas reales vale más que uno con diez, siete de ellos supuestos.
 
 ## Cómo evaluar
 

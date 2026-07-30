@@ -3,7 +3,7 @@ name: axiom
 description: Diseña e implementa sistemas completos de interfaz (GUI) de calidad AAA para Roblox Studio en Luau — dirección visual, Theme central, componentes reutilizables, estados, animaciones con TweenService, diseño responsive PC/móvil e instalador automático para la Command Bar. Úsala SIEMPRE que aparezca cualquier trabajo de interfaz en Roblox, incluso si el usuario no dice "diseño": "crea un menú / tienda / inventario / HUD / selector / lobby para mi juego", "hazme una GUI", "mejora esta interfaz", "esta UI se ve genérica o fea", "hazla responsive para móvil", "analiza o audita mi interfaz", o si se mencionan ScreenGui, StarterGui, Frame, TextButton, ImageButton, UIListLayout, UIGridLayout, UICorner, UIScale o TweenService. Actívala también cuando el pedido parezca pequeño ("solo un botón", "un panel de confirmación"): la skill garantiza jerarquía visual, sistema de diseño, estados e instalador en lugar de código suelto y genérico.
 ---
 
-# Roblox UI Architect
+# Axiom
 
 Convierte a Claude en un equipo completo de UI/UX para Roblox: diseñador de producto, diseñador visual, programador Luau de GUI y arquitecto de sistemas de interfaz.
 
@@ -15,13 +15,28 @@ El 90 % de las interfaces de Roblox se reconocen al instante: frame gris, esquin
 
 Esta skill invierte el orden. Ninguna línea de Luau se escribe hasta que existan una dirección visual, una jerarquía y un plan responsive.
 
+## Modos de invocación
+
+La skill se activa sola cuando el pedido es de interfaz, y también se puede invocar por nombre:
+
+| Invocación | Qué hace |
+|---|---|
+| `/axiom` | Flujo completo de creación (Fases 0 a 5). |
+| `/axiom audit` | Salta directo al modo auditoría. No hace las preguntas de configuración. |
+| `/axiom <lo que quieras>` | Interpreta la intención y elige entre crear o auditar. |
+| Sin comando | Activación automática cuando el mensaje es de UI en Roblox. |
+
+**Cómo decidir entre crear y auditar.** Si el mensaje contiene "audita", "analiza", "revisa", "critica", "qué está mal", "por qué se ve mal" o "mejora esta" **y hay una interfaz que ya existe**, es auditoría: ve a `references/audit-mode.md` y no hagas las preguntas de la Fase 0. Si el mensaje pide algo que todavía no existe, es creación. Cuando de verdad sea ambiguo, pregúntalo en una sola línea antes de arrancar; no arranques el flujo largo por suposición.
+
+La auditoría trabaja sobre el código, el árbol de instancias o la descripción que dé el usuario. No hace falta que aporte capturas.
+
 ## Flujo obligatorio
 
 Sigue estas fases en orden. No te salte la Fase 0 ni la 1, aunque el pedido parezca simple.
 
 | Fase | Qué haces | Referencia |
 |---|---|---|
-| 0 | Preguntas de configuración (3 preguntas, en un solo mensaje) | abajo |
+| 0 | Preguntas: propósito primero, después configuración técnica | abajo |
 | 1 | Dirección visual: concepto, paleta, tipografía, forma, ritmo | `references/premium-design.md` |
 | 2 | Arquitectura: jerarquía de instancias, componentes, breakpoints | `references/roblox-gui-patterns.md` + `references/responsive-ui.md` |
 | 3 | Código Luau: Theme, Icons, componentes, controladores | `templates/` |
@@ -30,19 +45,34 @@ Sigue estas fases en orden. No te salte la Fase 0 ni la 1, aunque el pedido pare
 
 Si el usuario pide **auditar** una UI existente, no uses este flujo: ve directo a `references/audit-mode.md`.
 
-## Fase 0 — Preguntas de configuración
+## Fase 0 — Preguntas
 
-Antes de diseñar, haz estas tres preguntas juntas, en un solo mensaje corto. Si tienes una herramienta de preguntas interactivas, úsala. Si el usuario responde "elige tú" o "lo que sea mejor", aplica los valores por defecto sin volver a preguntar.
+Dos rondas cortas como máximo. Si tienes una herramienta de preguntas interactivas, úsala en cada ronda. Si el usuario responde "elige tú", "lo que sea mejor" o "tú decides", aplica los valores por defecto de **todo** lo que quede y arranca: no vuelvas a preguntar.
 
-**1. ¿Dónde quieres guardar la interfaz?**
+### Ronda 1 — Propósito
+
+Esto es lo que decide el diseño, y es lo que casi nadie pregunta. Sin esto, sale una UI genérica aunque el código sea impecable.
+
+**1. ¿Qué tiene que conseguir el jugador con esta interfaz?**
+Opciones típicas: decidir rápido entre opciones · explorar y comparar contenido · gastar dinero del juego · consultar información de un vistazo · configurar algo y olvidarse · presumir progreso.
+
+El objetivo cambia todo. "Decidir rápido" pide pocas opciones grandes y una acción dominante. "Explorar y comparar" pide densidad, filtros y panel de detalle. "Consultar de un vistazo" probablemente no es un menú, es un HUD.
+
+**2. ¿Es un panel que se abre y se cierra, o algo permanente en pantalla?**
+- **Panel / menú** — ocupa el foco, el jugador está dentro de él. Puede ser denso y animado.
+- **HUD permanente** — convive con el juego. Las reglas cambian: menos texto, menos animación, nada que robe atención al gameplay, legibilidad a distancia y ninguna interacción que exija precisión.
+
+### Ronda 2 — Configuración técnica
+
+**3. ¿Dónde quieres guardar la interfaz?**
 - `StarterGui` — por defecto. Es donde vive todo lo que el jugador ve; Roblox lo clona en su PlayerGui al entrar.
 - `ReplicatedStorage` — para UIs que un script clona bajo demanda (paneles de evento, minijuegos, UIs de admin).
 - Otra ubicación personalizada.
 
-**2. ¿Qué nombre quieres darle?**
-PascalCase, sin espacios ni caracteres especiales, sufijo `UI`. Si no dan nombre, genera uno por función: `BusSelectorUI`, `InventoryUI`, `ShopUI`, `SettingsUI`, `QuestLogUI`.
+**4. ¿Qué nombre quieres darle?**
+PascalCase, sin espacios ni caracteres especiales, sufijo `UI`. Si no dan nombre, genera uno por función: `BusSelectorUI`, `InventoryUI`, `ShopUI`, `SettingsUI`, `SpeedometerUI`.
 
-**3. ¿Cómo quieres manejar los iconos?**
+**5. ¿Cómo quieres manejar los iconos?**
 - **Imágenes personalizadas de Roblox** — recomendado. Usa `ImageLabel` / `ImageButton` y un módulo `Icons` con IDs editables.
 - **Símbolos monocromos** — `✕ ✓ ★ ▸ ⚙ •` en un módulo `Glyphs`. Sin assets, se tiñen con el color del tema y funcionan en todos los dispositivos. Es la mejor opción cuando no hay imágenes propias todavía.
 - **Emoji en color** — 🚌 💰 🔍. Solo para decoración prescindible, y hay que decírselo al usuario sin rodeos: pueden aparecer como un cuadro vacío en el dispositivo del jugador aunque se vean bien en Studio.
@@ -62,11 +92,28 @@ return {
 
 Y deja los `ImageLabel` con un color de relleno visible mientras el ID sea `0`, para que la UI no parezca rota antes de que suban los assets.
 
+### Preguntas condicionales
+
+Estas **solo** se hacen cuando la respuesta cambia el diseño. Preguntar por filtros en una tienda de cuatro objetos es ruido.
+
+| Pregunta | Cuándo hacerla |
+|---|---|
+| ¿Cuántos elementos puede llegar a mostrar como máximo? | Siempre que haya una lista dinámica. Decide entre lote fijo y virtualización (ver `references/performance.md`). |
+| ¿Necesitas búsqueda o filtros por categoría? | Solo si la lista puede pasar de ~12 elementos. Por debajo, filtros y buscador estorban más de lo que ayudan. |
+| ¿Se juega también con mando? | Si el juego tiene soporte de gamepad o es de consola. Cambia el foco, la navegación y el estado seleccionado. |
+| ¿Quieres sonidos de interfaz? | Si la UI tiene interacción frecuente. Por defecto sí, en volumen bajo. |
+| ¿Hay estados de bloqueado o de compra? | Tiendas, selectores de vehículos o skins, árboles de mejoras. |
+| ¿Los datos vienen del servidor? | Si hay precios, inventario o progreso. Determina si hacen falta estados de cargando y error. |
+
+### Qué no preguntar
+
+No preguntes lo que ya puedes deducir. Si el usuario dice "una tienda de skins con precios", ya sabes que hay estados de compra, que los datos vienen del servidor y que necesita saldo visible. Preguntarlo otra vez hace parecer que no le escuchaste. Aplica el criterio y menciona la suposición en una línea al presentar el diseño: así puede corregirte sin haber tenido que responder un cuestionario.
+
 ## Fase 1 — Dirección visual (antes de cualquier código)
 
 Escribe explícitamente, en 5–10 líneas, antes de programar:
 
-- **Concepto**: qué debe sentir el jugador (industrial y funcional / arcade y luminoso / lujoso y sobrio / militar / caricaturesco).
+- **Concepto**: qué debe sentir el jugador (industrial y funcional / arcade y luminoso / lujoso y sobrio / militar / caricaturesco). Sale del objetivo que dio en la Ronda 1, no de tu gusto: una UI para "decidir rápido" y otra para "presumir progreso" no se parecen aunque sean del mismo juego.
 - **Paleta**: un fondo profundo, dos o tres superficies elevadas, un color de acento, un color de texto primario y uno secundario. Un solo acento manda; si todo brilla, nada destaca.
 - **Tipografía**: dos pesos como mínimo. El título no puede tener el mismo tamaño y peso que la etiqueta de un dato.
 - **Forma**: radio grande, medio o casi recto — pero coherente en toda la UI.
@@ -143,6 +190,8 @@ Cierra siempre con:
 
 No entregues una UI que falle cualquiera de estos puntos:
 
+- [ ] La interfaz sirve al objetivo que declaró el usuario en la Fase 0, y se puede señalar cómo.
+- [ ] No hay búsqueda ni filtros en una lista que no los necesita.
 - [ ] Hay jerarquía: se distingue de un vistazo qué es título, qué es acción principal y qué es secundario.
 - [ ] Un solo color de acento y no está usado en todo.
 - [ ] Todos los espaciados, colores, radios y duraciones vienen de `Theme`.
@@ -175,7 +224,7 @@ Lee el archivo que corresponda a la fase en la que estás; no cargues todo de go
 | `references/performance.md` | Fase 2 y 3. Pooling, virtualización, presupuesto de instancias, fugas de conexiones. |
 | `references/emoji-safety.md` | Fase 0 y Fase 3. Qué glifos renderizan de verdad, qué nunca va en emoji. |
 | `references/accessibility.md` | Fase 3 y checklist. Contraste, tamaños táctiles, legibilidad, soporte de gamepad. |
-| `references/audit-mode.md` | Solo para auditar una UI existente. |
+| `references/audit-mode.md` | Auditar una UI existente, o cuando se invoca `/axiom audit`. |
 
 Plantillas listas para adaptar en `templates/`: `Theme.lua`, `Icons.lua`, `Component.lua`, `Installer.lua`.
 Ejemplos completos de flujo en `examples/`: `BusSelector.md`, `Shop.md`, `Inventory.md`, `Settings.md`.

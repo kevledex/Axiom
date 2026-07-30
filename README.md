@@ -65,10 +65,31 @@ Solo habla normal. La skill se activa sola con peticiones como:
 - "Crea un selector premium de buses para mi juego"
 - "Necesito una tienda con saldo y confirmación de compra"
 - "Hazme un inventario que funcione bien en móvil"
-- "Analiza esta interfaz y dime qué está mal"
+- "Un velocímetro para mi juego de conducción"
 - "Esta UI se ve genérica, mejórala"
 
-Claude te hará tres preguntas (dónde guardarla, cómo llamarla, emojis o imágenes propias), diseñará, y te devolverá un script para pegar en la Command Bar de Roblox Studio.
+También se puede invocar por nombre:
+
+| Comando | Qué hace |
+|---|---|
+| `/axiom` | Flujo completo de creación |
+| `/axiom audit` | Audita una interfaz que ya existe, sin preguntas de configuración |
+| `/axiom <lo que quieras>` | Interpreta la intención y elige entre crear o auditar |
+
+### Qué te va a preguntar
+
+Dos rondas cortas, y solo lo que de verdad cambia el diseño:
+
+1. **Propósito** — qué tiene que conseguir el jugador con la interfaz, y si es un panel que se abre o algo permanente en pantalla.
+2. **Técnica** — dónde guardarla, cómo llamarla, y cómo manejar los iconos.
+
+Más preguntas condicionales solo cuando aplican (cuántos elementos puede mostrar la lista, si hace falta búsqueda, si se juega con mando, si hay compras). Si respondes "elige tú", aplica los valores por defecto y arranca sin insistir.
+
+Al final te devuelve un script para pegar en la Command Bar de Roblox Studio.
+
+### Modo auditoría
+
+`/axiom audit` trabaja sobre el código o el árbol de instancias de una UI que ya tienes. Devuelve puntuación en seis dimensiones (jerarquía, sistema de diseño, espaciado, responsividad, estados y originalidad), los problemas ordenados por impacto con el arreglo concreto de cada uno, y un plan de mejora dividido por esfuerzo. No necesita capturas.
 
 ## Instalar la interfaz generada
 
