@@ -44,7 +44,10 @@ PascalCase, sin espacios ni caracteres especiales, sufijo `UI`. Si no dan nombre
 
 **3. ¿Cómo quieres manejar los iconos?**
 - **Imágenes personalizadas de Roblox** — recomendado. Usa `ImageLabel` / `ImageButton` y un módulo `Icons` con IDs editables.
-- **Emojis** — usa `TextLabel` / `TextButton` con 🚌 ⚙️ 🔍. Rápido y sin assets, pero dilo claro: los emojis se ven distintos en cada plataforma, no se pueden teñir con `ImageColor3` y delatan un prototipo. Sirven para probar la estructura; para acabado AAA hacen falta imágenes.
+- **Símbolos monocromos** — `✕ ✓ ★ ▸ ⚙ •` en un módulo `Glyphs`. Sin assets, se tiñen con el color del tema y funcionan en todos los dispositivos. Es la mejor opción cuando no hay imágenes propias todavía.
+- **Emoji en color** — 🚌 💰 🔍. Solo para decoración prescindible, y hay que decírselo al usuario sin rodeos: pueden aparecer como un cuadro vacío en el dispositivo del jugador aunque se vean bien en Studio.
+
+Antes de escribir cualquier carácter que no sea texto normal, lee `references/emoji-safety.md`. La regla que no se rompe: **nada crítico va en emoji de color** — ni precios, ni símbolos de moneda, ni el botón de cerrar, ni indicadores de bloqueado. Eso va como imagen o como símbolo monocromo.
 
 Si eligen imágenes, **nunca inventes asset IDs**. Un ID inventado apunta a la imagen de otra persona o a nada. Genera siempre:
 
@@ -146,6 +149,8 @@ No entregues una UI que falle cualquiera de estos puntos:
 - [ ] La UI se reorganiza en pantalla estrecha; no es la de PC encogida.
 - [ ] Los objetivos táctiles son cómodos para un dedo, no para un cursor.
 - [ ] Ningún asset ID inventado; los pendientes son `rbxassetid://0` en un módulo editable.
+- [ ] Ningún emoji de color en un elemento crítico (precio, moneda, cerrar, confirmar, bloqueado).
+- [ ] Ningún alto o ancho calculado a mano para "el espacio que sobra". Se reparte con `UIFlexItem` o se mide; nunca `1, -160`.
 - [ ] Las animaciones duran entre 0.12 s y 0.30 s y comunican algo.
 - [ ] El instalador avisa si la UI ya existe, y no borra nada.
 - [ ] No hay ningún bloque de código copiado 20 veces que debería ser un componente.
@@ -162,6 +167,7 @@ Lee el archivo que corresponda a la fase en la que estás; no cargues todo de go
 | `references/animations.md` | Fase 3. TweenService, duraciones, easing, patrones de apertura/selección/feedback. |
 | `references/states.md` | Fase 3. Los nueve estados de interfaz y cómo implementarlos. |
 | `references/command-bar-installer.md` | Fase 4. Cómo generar un instalador que funcione de verdad. |
+| `references/emoji-safety.md` | Fase 0 y Fase 3. Qué glifos renderizan de verdad, qué nunca va en emoji. |
 | `references/accessibility.md` | Fase 3 y checklist. Contraste, tamaños táctiles, legibilidad, soporte de gamepad. |
 | `references/audit-mode.md` | Solo para auditar una UI existente. |
 

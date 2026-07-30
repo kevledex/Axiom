@@ -162,6 +162,9 @@ El indicador que se desliza es uno de los detalles que más "sube" la percepció
 - `while true do ... end` para actualizar la UI: usa eventos, o `RunService.RenderStepped` solo si de verdad hace falta cada frame.
 - Conectar eventos y nunca desconectarlos al destruir la UI: fuga de memoria.
 - Nombres duplicados entre hermanos: `FindFirstChild` devuelve el que no esperas.
+- **Calcular a mano el espacio que sobra**: `Size = UDim2.new(1, 0, 1, -160)` en el último hijo de un `UIListLayout`. Ese 160 tiene que coincidir exactamente con la suma de las otras filas, sus separaciones y el padding del contenedor; en cuanto cambia cualquiera de los tres, el hijo desborda y su contenido tapa la fila de arriba. Se ve sobre todo en teléfonos, donde la altura disponible es menor. La solución es `UIFlexItem` con `FlexMode = Fill`, o medir los hermanos con `AbsoluteSize` y repartir. Nunca el número a mano.
+- **Fila horizontal de ancho fijo con contenido variable** (chips de filtro, pestañas): si los elementos no caben, se recortan sin avisar. `AutomaticSize.Y` en la fila más `Wraps = true` en el `UIListLayout` hace que crezca a dos líneas en vez de cortar.
+- **Contenedores sin `ClipsDescendants`**: cuando algo desborda, se pinta encima de sus hermanos y el fallo parece un problema de `ZIndex` cuando en realidad es de tamaño.
 
 ## 8. Reglas de rendimiento
 

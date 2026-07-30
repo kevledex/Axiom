@@ -144,6 +144,8 @@ local main = crear("Frame", {
     Size = UDim2.fromScale(0.78, 0.8),
     Position = UDim2.fromScale(0.5, 0.5),
     AnchorPoint = Vector2.new(0.5, 0.5),
+    -- Si algo desborda, se recorta en vez de pintarse encima de otra fila.
+    ClipsDescendants = true,
 }, pantalla)
 
 esquinas(main, R.L)
@@ -213,6 +215,22 @@ function Theme.modoDePantalla(ancho)
 end
 
 return Theme
+]==], configuracion)
+
+crearModulo("Glyphs", [==[
+-- Solo simbolos de Nivel A: heredan TextColor3 y no dependen de que el sistema
+-- del jugador aporte una fuente de emoji en color. Ver references/emoji-safety.md
+local Glyphs = {
+    Close = "\u{2715}",
+    Check = "\u{2713}",
+    Star = "\u{2605}",
+    ChevronDown = "\u{25BE}",
+    ChevronRight = "\u{25B8}",
+    Bullet = "\u{2022}",
+    Settings = "\u{2699}",
+}
+
+return Glyphs
 ]==], configuracion)
 
 crearModulo("Icons", [==[
@@ -288,7 +306,9 @@ crear("TextLabel", {
 
 local cerrar = crear("TextButton", {
     Name = "CloseButton",
-    Text = "✕",
+    -- \u{2715} en vez del emoji en color: se tine con TextColor3 y nunca sale
+    -- como cuadro vacio. Ver references/emoji-safety.md
+    Text = "\u{2715}",
     TextColor3 = C.TextSecondary,
     FontFace = Font.new(FUENTE, Enum.FontWeight.Bold),
     TextSize = 18,
@@ -334,10 +354,16 @@ crear("TextBox", {
 local filtros = crear("Frame", {
     Name = "Filters",
     BackgroundTransparency = 1,
+    -- AutomaticSize.Y para que, si los chips no caben en una linea, la fila
+    -- crezca en vez de recortarlos.
     Size = UDim2.new(1, 0, 0, 34),
+    AutomaticSize = Enum.AutomaticSize.Y,
     LayoutOrder = 3,
 }, main)
-lista(filtros, Enum.FillDirection.Horizontal, S.S)
+local filaFiltros = lista(filtros, Enum.FillDirection.Horizontal, S.S)
+pcall(function()
+    filaFiltros.Wraps = true
+end)
 
 local ETIQUETAS_FILTRO = { "Todos", "Urbano", "Interprovincial", "Escolar" }
 for indice, texto in ipairs(ETIQUETAS_FILTRO) do
@@ -361,12 +387,22 @@ for indice, texto in ipairs(ETIQUETAS_FILTRO) do
 end
 
 -- 8.4 Cuerpo: lista de tarjetas + panel de detalle
+-- El cuerpo ocupa el espacio que sobra. NUNCA se calcula a mano con algo como
+-- UDim2.new(1, 0, 1, -160): ese numero se rompe en cuanto cambia la altura de
+-- una fila, el padding o la separacion, y es la causa tipica de que una fila
+-- quede tapada por el contenido de abajo en pantallas de poca altura.
 local cuerpo = crear("Frame", {
     Name = "Body",
     BackgroundTransparency = 1,
-    Size = UDim2.new(1, 0, 1, -160),
+    Size = UDim2.new(1, 0, 0, 0),
     LayoutOrder = 4,
 }, main)
+
+-- UIFlexItem hace el reparto de espacio de forma declarativa, como flex: 1 en CSS.
+-- Si la version de Studio no lo tiene, el controlador mide y ajusta (ver ajustarCuerpo).
+pcall(function()
+    crear("UIFlexItem", { FlexMode = Enum.UIFlexMode.Fill }, cuerpo)
+end)
 lista(cuerpo, Enum.FillDirection.Horizontal, S.M)
 
 -- El estado vacío no puede ser hijo directo del ScrollingFrame: el UIGridLayout
@@ -649,6 +685,30 @@ end)
 local rejilla = tarjetas:FindFirstChildOfClass("UIGridLayout")
 local listaCuerpo = cuerpo:FindFirstChildOfClass("UIListLayout")
 
+-- Respaldo por si la version de Studio no tiene UIFlexItem: en vez de restar un
+-- numero fijo, se MIDE lo que ocupan las filas fijas y se reparte lo que sobra.
+local function ajustarCuerpo()
+    if cuerpo:FindFirstChildOfClass("UIFlexItem") then
+        return
+    end
+
+    local columna = main:FindFirstChildOfClass("UIListLayout")
+    local rellenoMain = main:FindFirstChildOfClass("UIPadding")
+    local disponible = main.AbsoluteSize.Y
+
+    if rellenoMain then
+        disponible = disponible - rellenoMain.PaddingTop.Offset - rellenoMain.PaddingBottom.Offset
+    end
+
+    for _, hijo in ipairs(main:GetChildren()) do
+        if hijo:IsA("GuiObject") and hijo ~= cuerpo then
+            disponible = disponible - hijo.AbsoluteSize.Y - columna.Padding.Offset
+        end
+    end
+
+    cuerpo.Size = UDim2.new(1, 0, 0, math.max(disponible, 120))
+end
+
 local function aplicarModo()
     local ancho = pantalla.AbsoluteSize.X
     local modo = Theme.modoDePantalla(ancho)
@@ -665,6 +725,8 @@ local function aplicarModo()
     detalles.Size = compacto and UDim2.new(1, 0, 0.4, 0) or UDim2.new(0.34, 0, 1, 0)
     rejilla.CellSize = compacto and UDim2.new(0.98, 0, 0, 84) or UDim2.new(0.48, 0, 0, 96)
     rejilla.CellPadding = compacto and UDim2.new(0, 0, 0, 8) or UDim2.new(0.04, 0, 0, 12)
+
+    ajustarCuerpo()
 end
 
 pantalla:GetPropertyChangedSignal("AbsoluteSize"):Connect(aplicarModo)
