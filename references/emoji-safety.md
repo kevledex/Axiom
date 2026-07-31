@@ -66,7 +66,9 @@ return Glyphs
 
 4. **Para un símbolo de moneda, usa texto o imagen, nunca emoji.** Lo más robusto es el nombre corto de tu moneda ("1200 cr", "1200 monedas") o un `ImageLabel` con tu propio icono. Es también mejor diseño: una moneda propia refuerza la identidad del juego.
 
-5. **Si un icono es imprescindible y aún no hay asset**, deja `rbxassetid://0` con el relleno de placeholder visible (ver `Icons.lua`). Un cuadro tenue y deliberado se lee como "pendiente"; un tofu se lee como "roto".
+5. **Dile al usuario a qué tamaño exportar.** Entregar `Icons.lua` sin las especificaciones de los assets deja el trabajo a medias: ver `image-assets.md`.
+
+6. **Si un icono es imprescindible y aún no hay asset**, deja `rbxassetid://0` con el relleno de placeholder visible (ver `Icons.lua`). Un cuadro tenue y deliberado se lee como "pendiente"; un tofu se lee como "roto".
 
 ## Cómo comprobarlo
 

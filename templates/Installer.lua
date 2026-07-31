@@ -19,6 +19,13 @@
 local NOMBRE_UI = "BusSelectorUI"
 local destino = game:GetService("StarterGui")
 
+-- IgnoreGuiInset: true usa la pantalla COMPLETA, incluida la franja superior
+-- donde Roblox pone su boton. Necesario para fondos y overlays a pantalla
+-- completa, pero obliga a reservar margen arriba (MARGEN_SUPERIOR).
+-- false deja que Roblox reserve esa franja: mas seguro para HUD y paneles.
+local IGNORAR_INSET = true
+local MARGEN_SUPERIOR = 44
+
 -- Ponlo en true solo si quieres borrar a mano una instalación anterior.
 local REEMPLAZAR_SI_EXISTE = false
 
@@ -130,7 +137,7 @@ local R = { S = 4, M = 8, L = 12 }
 local pantalla = crear("ScreenGui", {
     Name = NOMBRE_UI,
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-    IgnoreGuiInset = true,
+    IgnoreGuiInset = IGNORAR_INSET,
     ResetOnSpawn = false,
     DisplayOrder = 10,
     Enabled = true,
@@ -150,7 +157,10 @@ local main = crear("Frame", {
 
 esquinas(main, R.L)
 borde(main, C.Border, 1, 0.5)
-relleno(main, S.L)
+
+-- Con el inset ignorado, el margen superior lo reservamos nosotros para que
+-- nada quede debajo del boton de Roblox.
+relleno(main, IGNORAR_INSET and math.max(S.L, MARGEN_SUPERIOR - 24) or S.L, S.L, S.L, S.L)
 
 -- Escala para adaptarse, constraint para no pasarse.
 crear("UISizeConstraint", {

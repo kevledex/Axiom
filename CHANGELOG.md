@@ -2,6 +2,21 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y versionado según [SemVer](https://semver.org/lang/es/).
 
+## [2.1.0] — 2026-07-29
+
+Correcciones surgidas de la primera prueba de la versión 2.
+
+### Corregido
+
+- **La skill no preguntaba por los sonidos.** La pregunta era condicional y su redacción ("por defecto sí, en volumen bajo") daba permiso para asumir en lugar de preguntar. Convertida en pregunta fija de la ronda técnica.
+- **`IgnoreGuiInset` nunca se decidía.** La propiedad solo aparecía en las referencias y en la plantilla, nunca en `SKILL.md`, que es el único archivo que se carga siempre. Convertida en pregunta explícita con la explicación de qué hace y una recomendación por tipo de interfaz.
+
+### Añadido
+
+- `references/image-assets.md` con resoluciones por tipo de elemento, formatos, proporción, teñido de iconos monocromos, imágenes de nueve secciones, sprite sheets y proceso de subida.
+- Obligación en la Fase 5 de entregar una tabla de especificaciones de assets, con una fila por cada icono del proyecto.
+- Banderas `IGNORAR_INSET` y `MARGEN_SUPERIOR` en el instalador de referencia, con el margen superior aplicado automáticamente cuando el inset se ignora.
+
 ## [2.0.0] — 2026-07-29
 
 Segunda versión. Corrección de los fallos encontrados en la primera prueba real, y ampliación de la skill más allá de los menús: HUD, widgets y superficies del mundo 3D.

@@ -77,6 +77,17 @@ PascalCase, sin espacios ni caracteres especiales, sufijo `UI`. Si no dan nombre
 - **Símbolos monocromos** — `✕ ✓ ★ ▸ ⚙ •` en un módulo `Glyphs`. Sin assets, se tiñen con el color del tema y funcionan en todos los dispositivos. Es la mejor opción cuando no hay imágenes propias todavía.
 - **Emoji en color** — 🚌 💰 🔍. Solo para decoración prescindible, y hay que decírselo al usuario sin rodeos: pueden aparecer como un cuadro vacío en el dispositivo del jugador aunque se vean bien en Studio.
 
+**6. ¿Quieres sonidos de interfaz?**
+Hover, clic, apertura, cierre, éxito y error. Se generan con IDs a `rbxassetid://0`, así que la UI funciona en silencio hasta que el usuario pegue los suyos. Por defecto sí, salvo que sea un HUD permanente (un contador que hace clic al cambiar es insoportable). Si dice que sí, lee `references/sound-design.md`.
+
+**7. ¿Quieres que la interfaz ocupe también la franja superior de la pantalla?**
+Es la propiedad `IgnoreGuiInset` del `ScreenGui`. Explícalo en una línea, sin jerga:
+
+- **Sí** (`IgnoreGuiInset = true`) — la interfaz usa la pantalla completa, incluida la franja de arriba donde Roblox pone su botón. Necesario para fondos a pantalla completa, overlays y modales que oscurecen todo. A cambio, **tú** tienes que dejar un margen superior de 36–48 px para que nada quede debajo del botón de Roblox.
+- **No** (`IgnoreGuiInset = false`, el valor por defecto de Roblox) — Roblox reserva esa franja automáticamente y tu interfaz empieza por debajo. Más seguro para paneles y HUD; nada puede quedar tapado.
+
+Recomendación por caso: **sí** para menús a pantalla completa, overlays y modales; **no** para HUD y paneles flotantes. Si el usuario no tiene preferencia, aplica esa recomendación y dilo en una línea al presentar el diseño.
+
 Antes de escribir cualquier carácter que no sea texto normal, lee `references/emoji-safety.md`. La regla que no se rompe: **nada crítico va en emoji de color** — ni precios, ni símbolos de moneda, ni el botón de cerrar, ni indicadores de bloqueado. Eso va como imagen o como símbolo monocromo.
 
 Si eligen imágenes, **nunca inventes asset IDs**. Un ID inventado apunta a la imagen de otra persona o a nada. Genera siempre:
@@ -101,7 +112,6 @@ Estas **solo** se hacen cuando la respuesta cambia el diseño. Preguntar por fil
 | ¿Cuántos elementos puede llegar a mostrar como máximo? | Siempre que haya una lista dinámica. Decide entre lote fijo y virtualización (ver `references/performance.md`). |
 | ¿Necesitas búsqueda o filtros por categoría? | Solo si la lista puede pasar de ~12 elementos. Por debajo, filtros y buscador estorban más de lo que ayudan. |
 | ¿Se juega también con mando? | Si el juego tiene soporte de gamepad o es de consola. Cambia el foco, la navegación y el estado seleccionado. |
-| ¿Quieres sonidos de interfaz? | Si la UI tiene interacción frecuente. Por defecto sí, en volumen bajo. |
 | ¿Hay estados de bloqueado o de compra? | Tiendas, selectores de vehículos o skins, árboles de mejoras. |
 | ¿Los datos vienen del servidor? | Si hay precios, inventario o progreso. Determina si hacen falta estados de cargando y error. |
 
@@ -185,8 +195,15 @@ Cierra siempre con:
 
 1. Los pasos exactos de instalación (View → Command Bar → pegar → Enter).
 2. Qué debe editar el usuario: los IDs de `Icons`, y los colores de `Theme` si quiere otra identidad.
-3. Cómo probarlo en móvil: Studio → Test → Device, probando al menos un teléfono pequeño y una tablet.
-4. Qué se puede extender después (más pestañas, más variantes de botón, conexión con datos del servidor).
+3. **Si eligió imágenes: la tabla de especificaciones de los assets.** Una fila por cada entrada de `Icons`, con la resolución recomendada, el formato y la proporción. El usuario no puede subir un asset correcto si no sabe a qué tamaño exportarlo, y una imagen mal dimensionada se ve borrosa o gasta memoria para nada. Las reglas y la tabla base están en `references/image-assets.md`. Ejemplo del formato esperado:
+
+   | Icono | Resolución | Formato | Notas |
+   |---|---|---|---|
+   | `Bus` | 256×256 | PNG con transparencia | cuadrado, se ve a 48 px |
+   | `Search` | 128×128 | PNG con transparencia | monocromo blanco, se tiñe desde `Theme` |
+   | `Shadow` | 9-slice 128×128 | PNG | `SliceCenter = Rect.new(10, 10, 118, 118)` |
+4. Cómo probarlo en móvil: Studio → Test → Device, probando al menos un teléfono pequeño y una tablet.
+5. Qué se puede extender después (más pestañas, más variantes de botón, conexión con datos del servidor).
 
 ## Checklist antes de entregar
 
@@ -204,6 +221,8 @@ No entregues una UI que falle cualquiera de estos puntos:
 - [ ] Los objetivos táctiles son cómodos para un dedo, no para un cursor.
 - [ ] Ningún asset ID inventado; los pendientes son `rbxassetid://0` en un módulo editable.
 - [ ] Ningún emoji de color en un elemento crítico (precio, moneda, cerrar, confirmar, bloqueado).
+- [ ] `IgnoreGuiInset` decidido a propósito, y si es `true`, hay margen superior reservado.
+- [ ] Si el usuario eligió imágenes, la entrega incluye la tabla de resoluciones y formatos de cada asset.
 - [ ] Ningún alto o ancho calculado a mano para "el espacio que sobra". Se reparte con `UIFlexItem` o se mide; nunca `1, -160`.
 - [ ] Las animaciones duran entre 0.12 s y 0.30 s y comunican algo.
 - [ ] Si hay sonidos: volumen bajo, con throttle para que una lista no suene a metralleta, y se pueden silenciar.
@@ -232,6 +251,7 @@ Lee el archivo que corresponda a la fase en la que estás; no cargues todo de go
 | `references/command-bar-installer.md` | Fase 4. Cómo generar un instalador que funcione de verdad. |
 | `references/performance.md` | Fase 2 y 3. Pooling, virtualización, presupuesto de instancias, fugas de conexiones. |
 | `references/emoji-safety.md` | Fase 0 y Fase 3. Qué glifos renderizan de verdad, qué nunca va en emoji. |
+| `references/image-assets.md` | Fase 5. Resoluciones, formatos y proporciones que hay que decirle al usuario. |
 | `references/accessibility.md` | Fase 3 y checklist. Contraste, tamaños táctiles, legibilidad, soporte de gamepad. |
 | `references/hud-vs-menu.md` | Fase 0 en adelante, si la UI es permanente en pantalla. Reglas propias del HUD. |
 | `references/known-pitfalls.md` | Cuando algo se ve mal y no está claro por qué, y como repaso antes de entregar. |

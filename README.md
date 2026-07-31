@@ -108,6 +108,7 @@ axiom/
 │   ├── hud-vs-menu.md        Reglas propias de un HUD permanente
 │   ├── known-pitfalls.md     Catálogo de fallos con causa y arreglo
 │   ├── emoji-safety.md       Qué glifos renderizan de verdad en Roblox
+│   ├── image-assets.md       Resoluciones, formatos y teñido de iconos
 │   ├── accessibility.md      Contraste, tamaños táctiles, gamepad
 │   └── audit-mode.md         Formato del informe de auditoría
 ├── templates/
