@@ -80,9 +80,11 @@ proporcion.Parent = icono
 Para imágenes no cuadradas (un banner 16:9), o pones el `AspectRatio` correspondiente (`16/9`), o usas `ScaleType`:
 
 - `Stretch` (por defecto) — deforma para llenar. Casi nunca es lo que quieres.
-- `Fit` — la imagen entera cabe, con espacio sobrante. Bueno para logos.
-- `Crop` — llena el contenedor recortando lo que sobra. Bueno para fondos y miniaturas.
+- `Fit` — la imagen entera cabe, con espacio sobrante. **Es el valor correcto para contenido real**: fotos de vehículos u objetos, renders y logos. Recortar ahí corta justo lo que el jugador está evaluando.
+- `Crop` — llena el contenedor recortando lo que sobra. Solo para fondos decorativos y para lo que se encuadra por convención, como avatares.
 - `Slice` — 9 secciones, ver más abajo.
+
+Si eliges `Fit`, va a sobrar espacio a los lados en algunas proporciones. Eso se resuelve con el color de fondo del contenedor o con un `UIAspectRatioConstraint` que le dé la proporción real de la imagen, **nunca cambiando a `Crop` para que "llene mejor"**: eso recorta información.
 
 ## 5. Iconos monocromos y teñido
 

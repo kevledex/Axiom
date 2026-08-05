@@ -12,6 +12,8 @@ Contenido:
 5. Responsive y móvil
 6. Instalación y Command Bar
 7. Rendimiento y fugas
+8. Componentes y datos
+9. Overlays y transiciones
 
 ---
 
@@ -57,6 +59,22 @@ Si la versión de Studio no tiene `UIFlexItem`, mide en lugar de restar un núme
 **Causa:** el padre tiene un `UIListLayout` o `UIGridLayout`. El layout posiciona a todos sus hijos y sobrescribe lo que pongas.
 
 **Arreglo:** ordena con `LayoutOrder`, no con `Position`. Si de verdad necesitas posicionar a mano un elemento dentro de ese contenedor (un badge en una esquina, un overlay), sácalo del flujo poniéndolo en un contenedor sin layout, o usa un wrapper.
+
+### Un elemento cambia de tamaño al sustituir un UIAspectRatioConstraint
+
+**Síntoma:** se reemplaza el constraint por un cálculo manual "equivalente" y el elemento sale más grande en escritorio.
+
+**Causa:** se asumió que `DominantAxis` gobernaba el cálculo. Con el `AspectType` por defecto (`FitWithinMaxSize`), el motor usa las dos dimensiones de `Size` y se queda con la más pequeña; `DominantAxis` solo aplica bajo `ScaleWithParentSize`. Al replicar a mano solo el límite de ancho, se pierde el de alto, que era el que mandaba.
+
+**Arreglo:** antes de sustituirlo, comprueba cuál de los dos límites estaba ganando y replica ese. Detalle en `roblox-gui-patterns.md`.
+
+### Arreglar un solape encoge otra cosa
+
+**Síntoma:** se corrige que dos elementos se pisen y aparece una regresión nueva: el fondo, o un panel vecino, queda más pequeño de lo que estaba.
+
+**Causa:** al reservar espacio para los elementos del bug, se reservó también para otros que no formaban parte del problema reportado. La reserva se infla y el espacio sobrante lo pierde otro.
+
+**Arreglo:** escala la reserva **solo** a los elementos realmente implicados en el bug. Si un elemento no fue reportado como problemático, no entra en el cálculo — aunque esté cerca y parezca coherente incluirlo. Antes de dar por bueno el arreglo, compara el resultado con el estado anterior en la resolución donde no había fallo.
 
 ### El borde negro por defecto arruina el diseño
 
@@ -115,6 +133,22 @@ ListWrapper (Frame, sin layout)
 **Causa:** las fuentes de Roblox no incluyen el set de emoji en color, y el respaldo depende del sistema de cada dispositivo.
 
 **Arreglo:** `ImageLabel` para lo importante, o símbolos monocromos del tipo `✕ ✓ ★ ▸ ⚙`. Detalle completo en `emoji-safety.md`. Ojo con `⚙` frente a `⚙️`: el segundo lleva un selector de variación invisible que lo convierte en emoji de color.
+
+### Un botón nuevo sale con texto donde el resto tiene iconos
+
+**Síntoma:** los botones añadidos después (un "abrir tienda", un "despawn") usan `Text` y `TextScaled`, mientras que los del diseño original llevan un `ImageLabel` hijo. Se nota de inmediato: rompen la coherencia visual.
+
+**Causa:** al añadir un elemento que no estaba en la estructura original se recurre al patrón genérico en vez de mirar cómo están construidos los elementos equivalentes del mismo archivo.
+
+**Arreglo:** antes de crear cualquier elemento nuevo en un archivo existente, localiza uno del mismo tipo que ya esté ahí y **replica su patrón exacto**: misma clase, misma forma de resolver el icono, mismos helpers, mismo tratamiento de estados. La consistencia con el archivo pesa más que cualquier patrón por defecto.
+
+### Una foto o un logo aparecen recortados
+
+**Síntoma:** las imágenes de contenido real (un vehículo, el logo de una marca) se ven cortadas por los lados y no se distingue bien qué son.
+
+**Causa:** `ScaleType.Crop` aplicado a contenido real. `Crop` llena el contenedor recortando lo que sobra, y en una foto lo que sobra suele ser justo lo que identifica al objeto.
+
+**Arreglo:** `Fit` para contenido real (fotos, renders, logos) y `Crop` solo para fondos decorativos y avatares. Si con `Fit` sobra espacio, se resuelve con el color de fondo del contenedor o con un `UIAspectRatioConstraint` acorde, nunca volviendo a `Crop`. Tabla completa en `roblox-gui-patterns.md`.
 
 ### El texto se sale del contenedor
 
@@ -208,6 +242,14 @@ ListWrapper (Frame, sin layout)
 
 **Arreglo:** conecta `GetPropertyChangedSignal("AbsoluteSize")` del `ScreenGui` y vuelve a aplicar el layout. Eso cubre también el redimensionado de la ventana en PC.
 
+### La adaptación táctil no se activa en tablets
+
+**Síntoma:** los objetivos táctiles grandes y las pistas de toque no aparecen en tablet, aunque sí en el teléfono.
+
+**Causa:** se usó el ancho de pantalla como señal de "es táctil". Muchas tablets en horizontal reportan más ancho que un portátil pequeño, así que el umbral nunca se cruza.
+
+**Arreglo:** `UserInputService.TouchEnabled` para decidir la interacción, y `AbsoluteSize` solo para decidir el layout. Son dos preguntas distintas con dos señales distintas. Ver `responsive-ui.md`.
+
 ### Algo queda debajo del botón de Roblox
 
 **Síntoma:** el título o un botón chocan con el logo de arriba a la izquierda.
@@ -233,6 +275,14 @@ ListWrapper (Frame, sin layout)
 **Causa:** ya existía una UI con ese nombre y el script terminó en el `warn` de protección. El mensaje está en la Output, que puede estar cerrada.
 
 **Arreglo:** abre la Output (View → Output). Es donde el instalador informa de todo.
+
+### Todo el viewport de Studio aparece tapado tras instalar
+
+**Síntoma:** después de ejecutar un instalador, el editor de Studio muestra una pantalla negra (o la interfaz completa) encima del mundo, y no se puede trabajar en el resto del juego.
+
+**Causa:** un `ScreenGui` a pantalla completa instalado con `Enabled = true` dentro de `StarterGui`. Studio previsualiza en vivo lo que hay en `StarterGui` en el viewport de edición.
+
+**Arreglo:** todo overlay a pantalla completa se instala con `Enabled = false` y lo enciende el script en tiempo de ejecución. Ver `overlays.md`.
 
 ### `script.Parent` es nil en el instalador
 
@@ -291,3 +341,61 @@ ListWrapper (Frame, sin layout)
 **Causa:** conexiones a señales externas (`RunService`, remotos, atributos) que sobreviven al `Destroy` de la interfaz.
 
 **Arreglo:** `Destroy()` limpia los eventos de la propia instancia, pero no esas. Guárdalas y desconéctalas explícitamente al cerrar.
+
+## 8. Componentes y datos
+
+### Todas las barras de estadísticas salen casi llenas
+
+**Síntoma:** las barras de velocidad, capacidad o carga se ven prácticamente iguales y muy llenas, sin importar el dato real. Dejan de comunicar nada.
+
+**Causa:** el tamaño del relleno se asignó a ojo, sin una fórmula de valor entre máximo. Sin un máximo explícito, no hay proporción que representar.
+
+**Arreglo:** toda barra necesita un máximo declarado, y el relleno se calcula siempre igual:
+
+```lua
+relleno.Size = UDim2.fromScale(math.clamp(valor / maximo, 0, 1), 1)
+```
+
+Usa el componente `templates/ProgressBar.lua`, que exige el máximo al crearse y falla si no se le pasa. Los máximos son decisión de diseño del juego (velocidad tope, asientos tope, depósito tope) y conviene tenerlos en un solo sitio, no repartidos por el código.
+
+### Un componente se comporta distinto en dos sitios
+
+**Síntoma:** dos botones aparentemente iguales responden distinto al hover o al estado deshabilitado.
+
+**Causa:** se duplicó el código en vez de usar el componente, y las dos copias divergieron.
+
+**Arreglo:** si un patrón aparece dos veces, es un componente. Ver `templates/Component.lua`.
+
+## 9. Overlays y transiciones
+
+### Parpadeo negro intermitente al rotar imágenes de fondo
+
+**Síntoma:** en un crossfade de imágenes, aparece un fotograma negro de vez en cuando. Parece un asset que no carga, y no lo es.
+
+**Causa:** las dos capas que alternan tienen fondo opaco propio. La que queda encima en el orden de dibujado tapa a su pareja con ese fondo justo cuando debería ser transparente. Si el número de imágenes es impar, el fallo aparece de forma inconsistente y parece aleatorio.
+
+**Arreglo:** ninguna capa del par lleva fondo opaco (`BackgroundTransparency = 1` en las dos). El respaldo sólido va una sola vez, en un `Frame` detrás de ambas. El crossfade anima solo `ImageTransparency`. Ver `overlays.md`.
+
+### El diagnóstico de precarga marca fallos en assets que sí funcionan
+
+**Síntoma:** `PreloadAsync` reporta `Failure` en imágenes que se ven perfectamente en el juego.
+
+**Causa:** se le pasaron los IDs como cadenas sueltas. El motor no puede verificar bien el estado de un `rbxassetid://` que no está asociado a ninguna instancia.
+
+**Arreglo:** para diagnóstico fiable, envuelve cada ID en una instancia real (un `ImageLabel` temporal e invisible) antes de precargar. Ver `overlays.md`.
+
+### El overlay desaparece de golpe
+
+**Síntoma:** la pantalla de carga o el modal se cortan bruscamente al terminar, rompiendo la suavidad del resto de la interfaz.
+
+**Causa:** se ocultó con `Enabled = false` directo. `Enabled` no se puede animar.
+
+**Arreglo:** construye el contenedor raíz como `CanvasGroup` desde el principio y anima `GroupTransparency` antes de apagar el `ScreenGui`. Así "ocultar" implica fade por defecto y no es algo que haya que recordar pedir. Ver `overlays.md`.
+
+### El chat sigue oculto después de la carga
+
+**Síntoma:** tras la pantalla de carga, el chat o la lista de jugadores no vuelven.
+
+**Causa:** se ocultaron al empezar y la restauración quedó en otra rama del código, o se perdió al salir por un camino distinto.
+
+**Arreglo:** la restauración va en el mismo punto que el cierre del overlay, no en un sitio aparte. Y envuelta en `pcall`, porque `SetCoreGuiEnabled` puede fallar según el contexto.

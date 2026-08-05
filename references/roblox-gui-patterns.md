@@ -75,6 +75,8 @@ Con `AutomaticCanvasSize` ya no hay que recalcular `CanvasSize` a mano cada vez 
 ## 3. Constraints
 
 - **`UIAspectRatioConstraint`** — mantiene la proporción de tarjetas e iconos al escalar. Imprescindible para que un icono cuadrado no se deforme entre monitores.
+
+  Cuidado con `DominantAxis`: **solo tiene efecto cuando `AspectType` es `ScaleWithParentSize`**. Con el valor por defecto (`FitWithinMaxSize`), el motor usa las **dos** dimensiones declaradas en `Size` y se queda con la que resulte más pequeña — `DominantAxis` no interviene. Es un malentendido caro: al sustituir el constraint por un cálculo manual es fácil replicar solo el límite de ancho y olvidar el de alto, que era el que de verdad mandaba, y aparece una regresión de tamaño en escritorio. Si vas a reemplazarlo, comprueba antes cuál de los dos límites estaba ganando.
 - **`UISizeConstraint`** — `MinSize` y `MaxSize` en píxeles. La forma correcta de evitar que un panel escalado se vuelva minúsculo en móvil o absurdo en 4K.
 - **`UITextSizeConstraint`** — límites de `TextSize` cuando usas `TextScaled`.
 - **`UIScale`** — un único punto para escalar todo un subárbol; también es la palanca para el escalado global por resolución.
@@ -119,6 +121,21 @@ pantalla.DisplayOrder = 10
 - `Selectable` / `SelectionOrder` si quieres soporte de gamepad.
 - `ImageColor3` en `ImageLabel` con iconos monocromos: un solo asset blanco sirve para todos los colores del tema.
 - `ScaleType = Enum.ScaleType.Slice` + `SliceCenter` para imágenes de marco que deben estirarse sin deformarse.
+
+**`ScaleType` según el tipo de imagen.** No es una preferencia estética: recortar contenido real pierde información que el jugador necesita ver.
+
+| Tipo de imagen | `ScaleType` | Por qué |
+|---|---|---|
+| Foto o render de contenido real (un vehículo, un objeto, un personaje) | `Fit` | recortar corta justo lo que el jugador está evaluando |
+| Logo o marca | `Fit` | un logo recortado deja de ser reconocible |
+| Avatar o miniatura de jugador | `Crop` | encuadre centrado, se asume que se recorta |
+| Fondo decorativo | `Crop` | tiene que llenar el espacio y no aporta detalle concreto |
+| Icono monocromo | `Fit` con `UIAspectRatioConstraint` | proporción fija, sin recorte |
+| Marco o sombra | `Slice` | esquinas intactas, centro estirable |
+
+El valor por defecto es `Stretch`, que deforma. Casi nunca es lo correcto: elige explícitamente.
+
+Regla práctica: **`Crop` solo para lo decorativo y para lo que se encuadra por convención (avatares). Todo lo que el jugador tiene que identificar o comparar va en `Fit`.** Con `Fit` sobra espacio a los lados, y eso se resuelve con el color de fondo del contenedor, no recortando.
 
 ## 6. Patrones de estructura
 

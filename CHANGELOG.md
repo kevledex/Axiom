@@ -2,6 +2,31 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y versionado según [SemVer](https://semver.org/lang/es/).
 
+## [2.2.0] — 2026-08-05
+
+Correcciones surgidas de dos proyectos reales: el pulido del selector de autobuses y la construcción de una pantalla de carga completa.
+
+### Corregido
+
+- **`ScaleType.Crop` aplicado a contenido real.** Las fotos y los logos se entregaban recortados. Ahora `Fit` es el valor para contenido que el jugador tiene que identificar, y `Crop` queda reservado a fondos decorativos y avatares, con una tabla por tipo de imagen.
+- **Barras de proporción sin máximo.** Las barras de estadísticas se dimensionaban a ojo y salían casi llenas sin importar el dato. El máximo pasa a ser obligatorio.
+- **Elementos añadidos que rompían el patrón del archivo.** Los botones creados fuera de la estructura original usaban texto plano mientras el resto usaba iconos. Añadida la regla de replicar el patrón de un elemento equivalente del mismo archivo antes de escribir nada.
+- **Documentación incorrecta de `UIAspectRatioConstraint`.** `DominantAxis` solo aplica con `AspectType = ScaleWithParentSize`; con el valor por defecto el motor usa ambas dimensiones y toma la menor.
+- **Detección de dispositivo táctil por ancho de pantalla.** No funciona: una tablet en horizontal reporta más ancho que un portátil pequeño. La señal correcta es `UserInputService.TouchEnabled`, y el ancho queda solo para decidir el layout.
+
+### Añadido
+
+- `references/overlays.md`: instalación apagada para no tapar el viewport de Studio, cierre con `CanvasGroup` y `GroupTransparency`, crossfade de dos capas sin fondo opaco propio, precarga con diagnóstico fiable y progreso real frente a simulado.
+- `references/security.md`: validación obligatoria en servidor, reglas para remotos, entradas de texto con lista blanca y filtrado de Roblox, limitación de frecuencia y qué no enviar nunca al cliente.
+- `templates/ProgressBar.lua`: componente que exige un máximo explícito al crearse y calcula siempre `valor / maximo` acotado.
+- Regla de alcance de un arreglo: al corregir un fallo se toca solo lo que ese fallo involucra, para no introducir regresiones al ampliar el arreglo de más.
+- Overlay a pantalla completa como tercer tipo de interfaz en la pregunta de propósito, junto a panel y HUD.
+- Once entradas nuevas en el catálogo de errores conocidos, con dos secciones nuevas para componentes y datos, y para overlays y transiciones.
+
+### Cambiado
+
+- Checklist final agrupado por áreas para poder repasarlo por bloques.
+
 ## [2.1.0] — 2026-07-29
 
 Correcciones surgidas de la primera prueba de la versión 2.

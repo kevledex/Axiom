@@ -10,6 +10,7 @@ No es una guía de estilo. Es un flujo de trabajo: Claude pregunta lo necesario,
 - **Sistema, no piezas.** `Theme` central, componentes reutilizables, cero valores mágicos repetidos.
 - **Responsive de verdad.** La versión móvil se rediseña, no se encoge. Breakpoints sobre `AbsoluteSize`, `UISizeConstraint`, objetivos táctiles de 44 px.
 - **Los nueve estados.** Normal, hover, presionado, seleccionado, deshabilitado, cargando, vacío, error y éxito. No solo el normal.
+- **Seguridad de serie.** El cliente nunca es de confianza: validación en servidor, filtrado de texto y límites de frecuencia para lo que la interfaz envía.
 - **Instalador seguro.** Comprueba si la UI ya existe, avisa y **no borra nada**. Registra la instalación en el historial de Studio para poder deshacerla con `Ctrl+Z`.
 - **Sin asset IDs inventados.** Los iconos pendientes quedan como `rbxassetid://0` en un módulo editable.
 - **Modo auditoría.** Analiza una UI existente y devuelve puntuación por dimensiones, problemas ordenados por impacto y un plan de mejora.
@@ -106,6 +107,8 @@ axiom/
 │   ├── performance.md        Pooling, virtualización, presupuesto de instancias
 │   ├── sound-design.md       Los siete sonidos de UI, volúmenes, throttle
 │   ├── hud-vs-menu.md        Reglas propias de un HUD permanente
+│   ├── overlays.md           Pantallas de carga, transiciones y crossfade
+│   ├── security.md           Validación en servidor, texto y límites de frecuencia
 │   ├── known-pitfalls.md     Catálogo de fallos con causa y arreglo
 │   ├── emoji-safety.md       Qué glifos renderizan de verdad en Roblox
 │   ├── image-assets.md       Resoluciones, formatos y teñido de iconos
@@ -115,6 +118,7 @@ axiom/
 │   ├── Theme.lua             Sistema de diseño central
 │   ├── Icons.lua             IDs editables con detección de placeholder
 │   ├── Sounds.lua            SoundGroup, throttle y silencio
+│   ├── ProgressBar.lua       Barra de proporción con máximo obligatorio
 │   ├── Component.lua         Botón completo con variantes y estados
 │   └── Installer.lua         Instalador funcional de referencia
 ├── examples/

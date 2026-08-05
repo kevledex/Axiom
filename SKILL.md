@@ -61,6 +61,7 @@ El objetivo cambia todo. "Decidir rápido" pide pocas opciones grandes y una acc
 **2. ¿Es un panel que se abre y se cierra, o algo permanente en pantalla?**
 - **Panel / menú** — ocupa el foco, el jugador está dentro de él. Puede ser denso y animado.
 - **HUD permanente** — convive con el juego. Las reglas cambian por completo: lee `references/hud-vs-menu.md` antes de diseñarlo. Un HUD tiene que poder leerse sin ser mirado, no puede bloquear el input y compite por atención con el gameplay.
+- **Overlay a pantalla completa** — pantalla de carga, transición, modal que oscurece todo. Tiene tres problemas propios que no tiene ninguna otra interfaz: lee `references/overlays.md`. Se instala apagado, se oculta siempre con fade, y cualquier crossfade se monta con una sola capa de respaldo.
 
 ### Ronda 2 — Configuración técnica
 
@@ -173,6 +174,23 @@ Convenciones de código:
 - Cero valores mágicos repetidos. Cada color, espaciado, radio y duración sale de `Theme`.
 - Cada componente devuelve una función `.new(config)` que crea y devuelve la instancia, con `Variant`, `OnClick` y estados incluidos.
 - Los eventos se conectan una sola vez por instancia, nunca dentro de la función que refresca la lista. Reconectar en cada render duplica conexiones y dispara el mismo clic varias veces.
+- **Toda barra que representa una proporción declara su máximo.** Nunca un `Size` a ojo: `valor / maximo` acotado, siempre. Usa `templates/ProgressBar.lua`, que exige el máximo al crearse.
+- **Elige `ScaleType` a propósito.** `Fit` para contenido real (fotos, renders, logos); `Crop` solo para fondos decorativos y avatares. El valor por defecto (`Stretch`) deforma.
+- Si la interfaz envía algo al servidor —compras, equipar, guardar, texto—, lee `references/security.md`. El cliente no es de confianza y la validación de la UI es comodidad, no seguridad.
+
+### Consistencia con lo que ya existe
+
+Cuando añadas un elemento a un archivo que ya tiene otros del mismo tipo, **localiza uno existente y replica su patrón exacto** antes de escribir nada: misma clase, misma forma de resolver el icono, mismos helpers, mismo tratamiento de estados.
+
+Esto aplica sobre todo a los elementos que se añaden después, fuera de la estructura original: un botón nuevo en una interfaz ya entregada, un panel extra en un instalador existente. Es justo donde es fácil caer en el patrón genérico —`Text` y `TextScaled`— mientras el resto del archivo usa un `ImageLabel` hijo, y el resultado desentona de inmediato.
+
+La coherencia con el archivo pesa más que cualquier patrón por defecto, incluidos los de esta skill.
+
+### Alcance de un arreglo
+
+Cuando corrijas un fallo concreto, **toca solo lo que ese fallo involucra**. Si el bug es que dos elementos se solapan, la reserva de espacio se calcula para esos dos, no para todos los vecinos que parezca coherente incluir. Ampliar el alcance "de paso" es la forma más habitual de introducir una regresión nueva mientras se arregla otra cosa.
+
+Antes de dar un arreglo por bueno, comprueba que no cambió nada en los escenarios donde no había fallo.
 
 ## Fase 4 — Instalador para la Command Bar
 
@@ -207,33 +225,53 @@ Cierra siempre con:
 
 ## Checklist antes de entregar
 
-No entregues una UI que falle cualquiera de estos puntos:
+No entregues una UI que falle cualquiera de estos puntos.
 
+**Diseño**
 - [ ] La interfaz sirve al objetivo que declaró el usuario en la Fase 0, y se puede señalar cómo.
-- [ ] No hay búsqueda ni filtros en una lista que no los necesita.
 - [ ] Hay jerarquía: se distingue de un vistazo qué es título, qué es acción principal y qué es secundario.
 - [ ] Un solo color de acento y no está usado en todo.
-- [ ] La UI cumple la función que pide el género, pero con identidad propia: no es la estética de otro juego reproducida.
+- [ ] Cumple la función que pide el género, pero con identidad propia: no es la estética de otro juego reproducida.
 - [ ] Todos los espaciados, colores, radios y duraciones vienen de `Theme`.
+- [ ] No hay búsqueda ni filtros en una lista que no los necesita.
+
+**Estados y feedback**
 - [ ] Cada elemento interactivo tiene, como mínimo, estados normal, hover, presionado y deshabilitado.
 - [ ] Existen los estados de vacío, cargando y error donde aplique. Una lista sin datos no debe verse como un bug.
-- [ ] La UI se reorganiza en pantalla estrecha; no es la de PC encogida.
-- [ ] Los objetivos táctiles son cómodos para un dedo, no para un cursor.
-- [ ] Ningún asset ID inventado; los pendientes son `rbxassetid://0` en un módulo editable.
-- [ ] Ningún emoji de color en un elemento crítico (precio, moneda, cerrar, confirmar, bloqueado).
-- [ ] `IgnoreGuiInset` decidido a propósito, y si es `true`, hay margen superior reservado.
-- [ ] Si el usuario eligió imágenes, la entrega incluye la tabla de resoluciones y formatos de cada asset.
-- [ ] Ningún alto o ancho calculado a mano para "el espacio que sobra". Se reparte con `UIFlexItem` o se mide; nunca `1, -160`.
 - [ ] Las animaciones duran entre 0.12 s y 0.30 s y comunican algo.
 - [ ] Si hay sonidos: volumen bajo, con throttle para que una lista no suene a metralleta, y se pueden silenciar.
-- [ ] Ningún ID de audio inventado; los pendientes son `rbxassetid://0` y la UI funciona en silencio sin errores.
-- [ ] El instalador avisa si la UI ya existe, y no borra nada.
+
+**Responsive**
+- [ ] La UI se reorganiza en pantalla estrecha; no es la de PC encogida.
+- [ ] Los objetivos táctiles son cómodos para un dedo, no para un cursor.
+- [ ] La detección de táctil usa `TouchEnabled`, no el ancho de pantalla.
+- [ ] `IgnoreGuiInset` decidido a propósito, y si es `true`, hay margen superior reservado.
+
+**Código y estructura**
+- [ ] Ningún alto o ancho calculado a mano para "el espacio que sobra". Se reparte con `UIFlexItem` o se mide; nunca `1, -160`.
+- [ ] Toda barra de proporción tiene máximo declarado y se calcula con `valor / maximo`.
+- [ ] `ScaleType` elegido a propósito en cada imagen: `Fit` para contenido real, `Crop` solo decorativo.
+- [ ] Los elementos añadidos siguen el patrón de los que ya existían en el mismo archivo.
 - [ ] No hay ningún bloque de código copiado 20 veces que debería ser un componente.
-- [ ] Si es un HUD: no bloquea el input, el texto es legible sobre cualquier fondo y respeta las zonas del joystick y el salto.
-- [ ] Repasada la sección relevante de `references/known-pitfalls.md` para el tipo de UI construida.
 - [ ] Ninguna lista destruye y recrea instancias al filtrar o refrescar. Se reutiliza un lote fijo.
 - [ ] Ningún evento se conecta dentro de una función de refresco.
 - [ ] Ningún bucle `while` refrescando la UI donde bastaría un evento.
+
+**Assets**
+- [ ] Ningún asset ID inventado; los pendientes son `rbxassetid://0` en un módulo editable.
+- [ ] Ningún ID de audio inventado; los pendientes son `rbxassetid://0` y la UI funciona en silencio sin errores.
+- [ ] Ningún emoji de color en un elemento crítico (precio, moneda, cerrar, confirmar, bloqueado).
+- [ ] Si el usuario eligió imágenes, la entrega incluye la tabla de resoluciones y formatos de cada asset.
+
+**Según el tipo de interfaz**
+- [ ] Si es un HUD: no bloquea el input, el texto es legible sobre cualquier fondo y respeta las zonas del joystick y el salto.
+- [ ] Si es un overlay: se instala con `Enabled = false`, el contenedor raíz es `CanvasGroup` y el cierre anima `GroupTransparency`.
+- [ ] Si hay crossfade: ninguna capa del par tiene fondo opaco propio.
+- [ ] Si envía datos al servidor: nada crítico viaja desde el cliente y el servidor revalida todo.
+
+**Entrega**
+- [ ] El instalador avisa si la UI ya existe, y no borra nada.
+- [ ] Repasada la sección relevante de `references/known-pitfalls.md` para el tipo de UI construida.
 
 ## Referencias
 
@@ -254,10 +292,12 @@ Lee el archivo que corresponda a la fase en la que estás; no cargues todo de go
 | `references/image-assets.md` | Fase 5. Resoluciones, formatos y proporciones que hay que decirle al usuario. |
 | `references/accessibility.md` | Fase 3 y checklist. Contraste, tamaños táctiles, legibilidad, soporte de gamepad. |
 | `references/hud-vs-menu.md` | Fase 0 en adelante, si la UI es permanente en pantalla. Reglas propias del HUD. |
+| `references/overlays.md` | Fase 0 en adelante, si la UI cubre toda la pantalla. Carga, transiciones, crossfade. |
+| `references/security.md` | Fase 3, si la interfaz envía algo al servidor. Validación, texto, límites de frecuencia. |
 | `references/known-pitfalls.md` | Cuando algo se ve mal y no está claro por qué, y como repaso antes de entregar. |
 | `references/audit-mode.md` | Auditar una UI existente, o cuando se invoca `/axiom audit`. |
 
-Plantillas listas para adaptar en `templates/`: `Theme.lua`, `Icons.lua`, `Sounds.lua`, `Component.lua`, `Installer.lua`.
+Plantillas listas para adaptar en `templates/`: `Theme.lua`, `Icons.lua`, `Sounds.lua`, `Component.lua`, `ProgressBar.lua`, `Installer.lua`.
 Ejemplos en `examples/`. **No todo pedido es un menú**: si el usuario pide un velocímetro, una barra de vida, un minimapa o números de daño, el ejemplo correspondiente ya tiene resueltas las reglas de HUD, el patrón de refresco y la estrategia de reutilización de instancias.
 
 | Ejemplo | Tipo | Qué resuelve |
