@@ -74,6 +74,28 @@ Escuchar el cambio de `AbsoluteSize` cubre también el redimensionado de la vent
 
 `UserInputService.TouchEnabled` sigue siendo útil, pero para otra cosa: decidir si mostrar pistas de teclado ("Presiona E") o de toque, y si vale la pena implementar hover.
 
+### No confundas las dos preguntas
+
+Son dos cosas distintas y cada una tiene su señal. Mezclarlas es un fallo frecuente:
+
+| Pregunta | Señal correcta |
+|---|---|
+| ¿Cuánto espacio tengo? | `AbsoluteSize` del `ScreenGui` |
+| ¿El jugador toca la pantalla? | `UserInputService.TouchEnabled` |
+
+**El ancho no dice si el dispositivo es táctil.** Una tablet en horizontal reporta más ancho que muchos portátiles pequeños, así que un umbral del tipo "menos de 1000 px es táctil" simplemente no se activa en las tablets que pretendía cubrir, y se activa en una ventana de escritorio reducida.
+
+```lua
+-- MAL: el ancho no es una señal de tactil
+local esTactil = pantalla.AbsoluteSize.X < 1000
+
+-- BIEN
+local UserInputService = game:GetService("UserInputService")
+local esTactil = UserInputService.TouchEnabled
+```
+
+Usa el ancho para decidir **el layout** (cuántas columnas, si cabe el panel lateral) y `TouchEnabled` para decidir **la interacción** (tamaño de los objetivos táctiles, si tiene sentido el hover, qué pistas de control mostrar). Un portátil táctil recibe layout amplio y objetivos generosos a la vez, que es justo lo correcto.
+
 ## 3. Breakpoints y escalado global
 
 Tres modos bastan:
